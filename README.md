@@ -1,1 +1,13 @@
 # library-management-system
+
+Library management is a project that manages and stores books information electronically according to students needs. The system helps both students and library manager to keep a constant track of all the books available in the library. It allows both the admin and the student to search for the desired book. It becomes necessary for colleges to keep a continuous check on the books issued and returned and even calculate fine. This task if carried out manually will be tedious and includes chances of mistakes. These errors are avoided by allowing the system to keep track of information such as issue date, last date to return the book and even fine information and thus there is no need to keep manual track of this information which thereby avoids chances of mistakes.
+Thus this system reduces manual work to a great extent allows smooth flow of library activities by removing chances of errors in the details.
+
+
+## How to run
+Add the following files in add_executable() function of your CMakeLists.txt.
+
+```
+add_executable(lms_practice_annie_code library-management-system/main.c library-management-system/books.c library-management-system/helpers.c library-management-system/books.h library-management-system/helpers.h library-management-system/transactions.c library-management-system/transactions.h)
+
+```
