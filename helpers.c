@@ -36,7 +36,7 @@ char* toLowerCase(const char* string) // Convert string to lower case, ignore nu
 
     for (int i = 0; i < len; i++)
     {
-        new_string[i] = tolower(string[i]); // exception thrown - access violation here
+        new_string[i] = tolower(string[i]);
     }
     new_string[len] = '\0';
     return new_string;
@@ -46,8 +46,39 @@ int isContain(char* data, char* keyword) // Check if a string contain the keywor
 {
     if (!data || !keyword)	return 0;
 
-    if (!strstr(toLowerCase(data), toLowerCase(keyword)))	return 0;
-    else	return 1;
+    char* lower_case_data = toLowerCase(data);
+    char* lower_case_keyword = toLowerCase(keyword);
+    if (!strstr(lower_case_data, lower_case_keyword))
+    {
+        free(lower_case_data);
+        free(lower_case_keyword);
+        return 0;
+    }
+    else
+    {
+        free(lower_case_data);
+        free(lower_case_keyword);
+        return 1; // a match
+    }
+}
+
+int isMatch(char* data, char* input)
+{
+    if (!data || !input)    return 0; // if either is NULL = not match
+    char* lower_case_data = toLowerCase(data);
+    char* lower_case_input = toLowerCase(input);
+    if (strcmp(lower_case_data, lower_case_input))
+    {
+        free(lower_case_data);
+        free(lower_case_input);
+        return 0; // not match
+    }
+    else
+    {
+        free(lower_case_data);
+        free(lower_case_input);
+        return 1; // a match
+    }
 }
 
 int countDigits(long num)

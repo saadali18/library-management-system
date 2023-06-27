@@ -33,10 +33,10 @@ typedef struct BookCopy
 
 extern Book* library;
 
-Book* createBook(char* ISBN, char* title, int author_id, enum book_tag* tags, int tag_count, int total_count);
+Book* createBook(char* ISBN, char* title, int author_id, enum book_tag* tags, int tag_count, int total_count, int in_stock_count, int likes);
 void insertBook(Book* book, Book** head);
-void printBooks(Book* book);
 Book* searchBooks(char* keyword, Book* head);
+void printBooks(Book* book);
 Book* filterBooks(Book* parameters, Book* head);
 
 #endif //LMS_PRACTICE_ANNIE_CODE_BOOKS_H

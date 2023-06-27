@@ -13,6 +13,7 @@ char* formatUserStatus(int status);
 
 char* toLowerCase(const char* string);
 int isContain(char* data, char* keyword);
+int isMatch(char* data, char* input);
 int countDigits(long num);
 char* toString(long num);
 
