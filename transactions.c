@@ -91,13 +91,23 @@ BookCopy* findBookCopy(int book_uid, BookCopy* book_copy_head)
     }
 }
 
+Book* findSourceBook(char* ISBN, Book* book_head)
+{
+    Book* current = book_head;
+    while(current)
+    {
+        if (isMatch(current->ISBN, ISBN))   return current;
+        current = current->next;
+    }
+}
+
 void rentBook(BookTransaction* transaction, Book* book_head, BookCopy* book_copy_head)
 {
     // Update book copy status
     BookCopy* rented_copy = findBookCopy(transaction->book_uid, book_copy_head);
     rented_copy->status = inactive;
     // Update source book count/status
-    Book* source_book = filterByISBN(rented_copy->ISBN, book_head); // reuse filterByISBN here
+    Book* source_book = findSourceBook(rented_copy->ISBN, book_head);
     source_book->in_stock_count -= 1;
     if (source_book->in_stock_count < 1)    source_book->status = inactive;
 }

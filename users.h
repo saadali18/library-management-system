@@ -21,7 +21,7 @@ extern User* user_list_head;
 
 User* createUser(int user_id, char* full_name, char* login_name, char* password, char* email, enum credential title, enum user_status status);
 void insertUser(User* user, User** head);
-void printUser(User* user);
+void printUser(User* head);
 User* searchUsers(char* keyword, User* head);
 User* filterByUserID(int input_ID, User* head);
 User* filterUsers(User* parameters, User* head);

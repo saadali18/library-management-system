@@ -71,5 +71,9 @@ int main()
     BookTransaction* filtered_trans = filterTransactions(trans_parameters, transaction_list);
     printf("*****Filtered Results*****\n");
     printTransactions(filtered_trans);
+
+    rentBook(rental1, library, inventory);
+    printBooks(library);
+    printBookCopies(inventory);
     return 0;
 }

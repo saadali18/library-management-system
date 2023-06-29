@@ -32,7 +32,7 @@ extern BookCopy* inventory;
 
 Book* createBook(char* ISBN, char* title, int author_id, enum book_status status, enum book_tag* tags, int tag_count, int total_count, int in_stock_count, int likes);
 void insertBook(Book* book, Book** head);
-void printBooks(Book* book);
+void printBooks(Book* head);
 Book* searchBooks(char* keyword, Book* head);
 Book* filterByISBN(char* input_ISBN, Book* head);
 Book* filterBooks(Book* parameters, Book* head);
