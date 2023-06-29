@@ -5,26 +5,32 @@
 
 char* formatBookStatus(int status)
 {
-    char* book_s[] = { "inactive", "active" };
+    char* book_s[] = { "none", "inactive", "active" };
     return book_s[status];
 }
 
 char* formatBookTag(int tag)
 {
-    char* book_t[] = { "biography", "fantasy", "fiction", "mystery", "romance", "sci fi", "thriller", "young adult" };
+    char* book_t[] = { "none", "biography", "fantasy", "fiction", "mystery", "romance", "scifi", "thriller", "young adult" };
     return book_t[tag];
 }
 
 char* formatUserCred(int title)
 {
-    char* cred[] = { "author", "customer", "librarian" };
+    char* cred[] = { "none", "author", "customer", "librarian" };
     return cred[title];
 }
 
 char* formatUserStatus(int status)
 {
-    char* user_s[] = { "inactive", "active", "delinquent" };
+    char* user_s[] = { "none", "inactive", "active", "delinquent" };
     return user_s[status];
+}
+
+char* formatTransactionStatus(int status)
+{
+    char* trans_s[] = {"none", "open", "close"};
+    return trans_s[status];
 }
 
 char* toLowerCase(const char* string) // Convert string to lower case, ignore number
@@ -97,9 +103,11 @@ int countDigits(long num)
     return count;
 }
 
-char* toString(long num)
+char* toString(int num)
 {
     char* num_string = malloc(countDigits(num + 1) * sizeof(char));
-    sprintf(num_string, "%ld", num);
+    sprintf(num_string, "%i", num);
     return num_string;
 }
+
+

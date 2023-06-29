@@ -1,6 +1,7 @@
 #ifndef TRANSACTIONS_H
-
 #define TRANSACTIONS_H
+#include "users.h" // adding header
+enum transaction_status { no_trans_status, open, close };
 
 typedef struct Date
 {
@@ -16,17 +17,17 @@ typedef struct BookTransaction
     Date* due_date;
     Date* return_date;
     int user_id;
+    enum transaction_status status;
     struct BookTransaction* next;
 } BookTransaction;
 
-Date* addDaystoDates(Date* date, int days);
-BookTransaction* createTransaction(int book_uid, Date* check_out_date, int user_id);
+extern BookTransaction* transaction_list;
+
+Date* addDaysToDates(Date* date, int days);
+BookTransaction* createTransaction(int book_uid, Date* check_out_date, int user_id, enum transaction_status status);
 void insertTransaction(BookTransaction* transaction, BookTransaction** head);
-BookTransaction* searchbyBookID(int book_uid, BookTransaction** head);
-BookTransaction* searchbyCheckoutDate(Date* input, BookTransaction** head);
-BookTransaction* searchbyDueDate(Date* input, BookTransaction** head);
-BookTransaction* searchbyReturnDate(Date* input, BookTransaction** head);
-BookTransaction* searchbyUserID(int user_id, BookTransaction** head);
-BookTransaction* searchTransactions(BookTransaction* parameters, BookTransaction** head);
+void printTransactions(BookTransaction* head);
+BookTransaction* searchTransaction(char* keyword, BookTransaction* transaction_head, User* user_head); // program doesn't recognize struct User unless using #include here
+BookTransaction* filterTransactions(BookTransaction* parameters, BookTransaction* head);
 
 #endif
