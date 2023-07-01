@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
+#include "helpers.h"
 
 char* formatBookStatus(int status)
 {
@@ -29,7 +31,7 @@ char* formatUserStatus(int status)
 
 char* formatTransactionStatus(int status)
 {
-    char* trans_s[] = {"none", "open", "close"};
+    char* trans_s[] = {"none", "open", "close", "past due" };
     return trans_s[status];
 }
 
@@ -108,6 +110,66 @@ char* toString(int num)
     char* num_string = malloc(countDigits(num + 1) * sizeof(char));
     sprintf(num_string, "%i", num);
     return num_string;
+}
+
+const int rental_days = 90;
+
+Date* addDaysToDates(Date* date, int days)
+{
+    Date* calculated_date = malloc(sizeof(Date));
+    calculated_date->year = date->year;
+    calculated_date->month = date->month;
+    calculated_date->day = date->day;
+
+    int days_in_month[] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+    calculated_date->day += days;
+
+    while (calculated_date->day > days_in_month[calculated_date->month])
+    {
+        calculated_date->day -= days_in_month[calculated_date->month];
+        calculated_date->month++;
+
+        if (calculated_date->month > 12)
+        {
+            calculated_date->month -= 12;
+            calculated_date->year++;
+        }
+    }
+
+    return calculated_date;
+}
+
+int compareDate(Date* date1, Date* date2)
+{
+    if (date1->year == date2->year && date1->month == date2->month && date1->day == date2->day)
+        return 1;
+    else return 0;
+}
+
+Date* getTodaysDate()
+{
+    time_t current_time;
+    time(&current_time);
+
+    struct tm* local_time = localtime(&current_time);
+
+    Date* today = malloc(sizeof(Date));
+    today->year = local_time->tm_year + 1900;
+    today->month = local_time->tm_mon + 1;
+    today->day = local_time->tm_mday;
+
+    return today;
+}
+
+int isPastDue(Date* today, Date* due_date)
+{
+    if (today->year < due_date->year)   return 0;
+    if (today->year > due_date->year)  return 1;
+    if (today->month < due_date->month) return 0;
+    if (today->month > due_date->month)    return 1;
+    if (today->day <= due_date->day) return 0;
+    return 1;
 }
 
 

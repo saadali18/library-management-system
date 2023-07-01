@@ -1,10 +1,14 @@
-//
-// Created by Saad Ali on 24/06/2023.
-//
+#ifndef HELPERS_H
+#define HELPERS_H
 
-#ifndef LMS_PRACTICE_ANNIE_CODE_HELPERS_H
-#define LMS_PRACTICE_ANNIE_CODE_HELPERS_H
+typedef struct Date
+{
+    int year;
+    int month;
+    int day;
+} Date;
 
+extern const int rental_days;
 
 char* formatBookStatus(int status);
 char* formatBookTag(int tag);
@@ -18,5 +22,9 @@ int isMatch(char* data, char* input);
 int countDigits(long num);
 char* toString(int num);
 
+Date* addDaysToDates(Date* date, int days);
+int compareDate(Date* date1, Date* date2);
+Date* getTodaysDate();
+int isPastDue(Date* today, Date* due_date);
 
-#endif //LMS_PRACTICE_ANNIE_CODE_HELPERS_H
+#endif

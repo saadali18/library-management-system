@@ -20,13 +20,16 @@ int main()
     printf("***LIBRARY***\n");
     printBooks(library);
     Book* searched_books = searchBooks("Fantasy", library);
-    printf("*****Searched Results*****\n");
+    printf("*****Searched Book Results*****\n");
     printBooks(searched_books);
     enum book_tag filter_tags[] = { fantasy, fiction};
     Book* filterBy = createBook(NULL, NULL, 0, no_book_status,filter_tags, 2, 0, 0, 0);
     Book* filtered_books = filterBooks(filterBy, library);
-    printf("*****Filtered Results*****\n");
+    printf("*****Filtered Book Results*****\n");
     printBooks(filtered_books);
+
+    freeBookList(searched_books);
+    freeBookList(filtered_books);
 
     User* new_user1 = createUser(1111, "Luke Skywalker", "luke.s", "luke", "luke.s@gmail.com", author, active_user);
     User* new_user2 = createUser(2222, "Obiwan Kenobi", "obiwan.k", "obiwan", "obiwan.k@gmail.com", customer, active_user);
@@ -37,12 +40,15 @@ int main()
     printf("***USERS***\n");
     printUser(user_list_head);
     User* searched_users = searchUsers("VADER", user_list_head);
-    printf("*****Searched Results*****\n");
+    printf("*****Searched User Results*****\n");
     printUser(searched_users);
     User* user_parameters = createUser(-1, NULL, NULL, NULL, NULL, customer, active_user);
     User* filtered_users = filterUsers(user_parameters, user_list_head);
-    printf("*****Filtered Results*****\n");
+    printf("*****Filtered User Results*****\n");
     printUser(filtered_users);
+
+    freeUserList(searched_users);
+    freeUserList(filtered_users);
 
     BookCopy* copy1 = createBookCopy(01, "1234", active);
     BookCopy* copy2 = createBookCopy(02, "1234", active);
@@ -60,20 +66,35 @@ int main()
     BookTransaction* rental2 = createTransaction(02, &date2, 2222, open);
     BookTransaction* rental3 = createTransaction(03, &date3, 3333, open);
     insertTransaction(rental1, &transaction_list);
+    rentBook(rental1, library, inventory);
     insertTransaction(rental2, &transaction_list);
+    rentBook(rental2, library, inventory);
     insertTransaction(rental3, &transaction_list);
+    rentBook(rental3, library, inventory);
     printf("***TRANSACTIONS***\n");
     printTransactions(transaction_list);
     BookTransaction* searched_trans = searchTransaction("Luke", transaction_list, user_list_head); // use name to find user id linked w trans
-    printf("*****Searched Results*****\n");
+    printf("*****Searched Transaction Results*****\n");
     printTransactions(searched_trans);
     BookTransaction* trans_parameters = createTransaction(0, &date1, 0, no_trans_status);
     BookTransaction* filtered_trans = filterTransactions(trans_parameters, transaction_list);
-    printf("*****Filtered Results*****\n");
+    printf("*****Filtered Transaction Results*****\n");
     printTransactions(filtered_trans);
 
-    rentBook(rental1, library, inventory);
+    freeTransactionList(searched_trans);
+    freeTransactionList(filtered_trans);
+
+    printf("***Updated Library and Inventory after Renting***\n");
     printBooks(library);
     printBookCopies(inventory);
+
+    returnBook(01, library, inventory, transaction_list);
+
+    printf("***Updated Library and Inventory after Returning***\n");
+    printBooks(library);
+    printBookCopies(inventory);
+    printTransactions(transaction_list);
+
+
     return 0;
 }

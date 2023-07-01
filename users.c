@@ -190,3 +190,12 @@ int countUsers(User* head)
     return count;
 }
 
+void freeUserList(User* head)
+{
+    while (head)
+    {
+        User* temp = head;
+        head = head->next;
+        free(temp);
+    }
+}

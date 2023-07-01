@@ -26,4 +26,7 @@ User* searchUsers(char* keyword, User* head);
 User* filterByUserID(int input_ID, User* head);
 User* filterUsers(User* parameters, User* head);
 
+void freeUserList(User* head);
+
+
 #endif

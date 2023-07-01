@@ -122,10 +122,10 @@ Book* filterByISBN(char* input_ISBN, Book* head)
         if (isMatch(current->ISBN, input_ISBN))
         {
             copyBookToResult(current, &filtered_result);
+            return filtered_result; // unique should only return 1 record;
         }
         current = current->next;
     }
-    return filtered_result; // unique should only return 1 record;
 }
 
 Book* filterByTitle(char* input_title, Book* head)
@@ -249,6 +249,15 @@ int countBookCopies(BookCopy* head)
     return count;
 }
 
+void freeBookList(Book* head)
+{
+    while (head)
+    {
+        Book* temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
 
 
 
