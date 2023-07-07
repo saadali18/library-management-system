@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "helpers.h"
 #include "books.h"
 #include "transactions.h"
@@ -94,18 +96,20 @@ Book* searchBooks(char* keyword, Book* head)
 
     while (current)
     {
+        bool is_tag = true;
         if (isContain(current->ISBN, keyword) || isContain(current->title, keyword) || \
 			isContain(toString(current->author_id), keyword) || \
 			isContain(formatBookStatus(current->status), keyword))
         {
             copyBookToResult(current, &search_result);
+            is_tag = false;
         }
-        for (int i = 0; i < current->tag_count; i++)
-        {
-            if (isContain(formatBookTag(current->tags[i]), keyword))
-            {
-                copyBookToResult(current, &search_result);
-                break;
+        if (is_tag){
+            for (int i = 0; i < current->tag_count; i++) {
+                if (isContain(formatBookTag(current->tags[i]), keyword)) {
+                    copyBookToResult(current, &search_result);
+                    break;
+                }
             }
         }
         current = current->next;
@@ -210,6 +214,17 @@ void insertBookCopy(BookCopy* book_copy, BookCopy** head)
     while (current->next)
         current = current->next;
     current->next = book_copy;
+}
+
+BookCopy* getAvailableCopyOfBook(Book* book)
+{
+    BookCopy* current = inventory;
+    while (current)
+    {
+        if (!strcmp(current->ISBN, book->ISBN) && current->status == active)
+            return current;
+        current = current->next;
+    }
 }
 
 void printBookCopies(BookCopy* head)

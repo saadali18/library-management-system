@@ -45,20 +45,20 @@ void copyTransactionToResult(BookTransaction* transaction, BookTransaction** res
     BookTransaction* result = createTransaction(transaction->book_uid, transaction->check_out_date, transaction->user_id, transaction->status);
     insertTransaction(result, result_list);
 }
-
-BookCopy* findBookCopy(int book_uid, BookCopy* book_copy_head)
+// Linker function
+BookCopy* findBookCopy(int book_uid)
 {
-    BookCopy* current = book_copy_head;
+    BookCopy* current = inventory;
     while (current)
     {
         if (current->book_uid == book_uid)  return current;
         current = current->next;
     }
 }
-
-Book* findSourceBook(char* ISBN, Book* book_head)
+ // Linker function
+Book* findSourceBook(char* ISBN)
 {
-    Book* current = book_head;
+    Book* current = library;
     while(current)
     {
         if (isMatch(current->ISBN, ISBN))   return current;
@@ -66,9 +66,10 @@ Book* findSourceBook(char* ISBN, Book* book_head)
     }
 }
 
-BookTransaction* findOriginalTransaction(int book_uid, BookTransaction* transaction_head)
+// Linker function
+BookTransaction* findOriginalTransaction(int book_uid)
 {
-    BookTransaction* current = transaction_head;
+    BookTransaction* current = transaction_list;
     while (current)
     {
         if (current->book_uid == book_uid)  return current;
@@ -76,9 +77,10 @@ BookTransaction* findOriginalTransaction(int book_uid, BookTransaction* transact
     }
 }
 
-User* findUserFromID(int user_id, User* head)
+// Linker function
+User* findUserFromID(int user_id)
 {
-    User* current = head;
+    User* current = user_list_head;
     while (current)
     {
         if (current->user_id == user_id)    return current;
@@ -86,36 +88,60 @@ User* findUserFromID(int user_id, User* head)
     }
 }
 
-void rentBook(BookTransaction* transaction, Book* book_head, BookCopy* book_copy_head)
+void rentBook(Book* book, User* user)
 {
-    // Find the copy being rented out
-    BookCopy* rented_copy = findBookCopy(transaction->book_uid, book_copy_head);
-    // Check if this book copy is available for rent
-    if (rented_copy->status == inactive)
+    // Check if source book has available copies in stock
+    if (book->in_stock_count < 1)
     {
-        printf("This copy is unavailable. Please choose a different copy of this book!\n");
+        printf("Rental transaction unsuccessful. No copy available in stock for rent\n--------------\n");
         return;
     }
-    else rented_copy->status = inactive; // Update book copy status
-    // Update source book count and status
-    Book* source_book = findSourceBook(rented_copy->ISBN, book_head);
-    source_book->in_stock_count -= 1;
-    if (source_book->in_stock_count < 1)    source_book->status = inactive;
+
+    // Get the first available copy
+    BookCopy* rented_copy = getAvailableCopyOfBook(book);
+
+    // Create and insert transaction
+    BookTransaction* rental = createTransaction(rented_copy->book_uid, getTodaysDate(), user->user_id, open);
+    insertTransaction(rental, &transaction_list);
+
+    // Print transaction status
+    if (rental)
+    {
+        printf("Rental transaction is successful!\n");
+        printf("Customer: %s\nBook title: %s\nBook Copy UID: %i\n", user->full_name, book->title, rented_copy->book_uid);
+        printf("Please return the book by: %i/%i/%i\n", rental->due_date->month, rental->due_date->day, rental->due_date->year);
+        printf("---------------------------\n");
+    }
+    else printf("Rental unsuccessful. Please try again\n");
+
+    // Update source book count and status if needed
+    book->in_stock_count -= 1;
+    if (book->in_stock_count < 1)    book->status = inactive;
+
+    // Update rented copy status
+    rented_copy->status = inactive;
 }
 
-void returnBook(int book_uid, Book* book_head, BookCopy* book_copy_head, BookTransaction* transaction_head)
+void returnBook(int book_uid)
 {
-    //Update Book Copy status after return
-    BookCopy* returned_book_copy = findBookCopy(book_uid, book_copy_head);
-    returned_book_copy->status = active;
-    // Update source book in stock count and status (if needed) after return
-    Book* source_book = findSourceBook(returned_book_copy->ISBN, book_head);
+    // Find and update the returned book copy
+    BookCopy* returned_copy = findBookCopy(book_uid);
+    returned_copy->status = active;
+
+    // Update source book count and status
+    Book* source_book = findSourceBook(returned_copy->ISBN);
     source_book->in_stock_count += 1;
-    if (source_book->in_stock_count > 0)    source_book->status = active;
-    // Update original book transaction return date and status
-    BookTransaction* original_transaction = findOriginalTransaction(book_uid, transaction_head);
-    original_transaction->return_date  = getTodaysDate();
+    source_book->status = active;
+
+    // Find and update original transaction
+    BookTransaction* original_transaction = findOriginalTransaction(returned_copy->book_uid);
+    original_transaction->return_date = getTodaysDate();
     original_transaction->status = close;
+
+    // Print transaction status
+    printf("Successfully return \"%s\"!\n", source_book->title);
+    printf("Return date: %i/%i/%i\n", original_transaction->return_date->month, original_transaction->return_date->day, original_transaction->return_date->year);
+    printf("Thank you for choosing LMS!\n--------------------\n");
 }
 
 void printTransactions(BookTransaction* head)
@@ -149,7 +175,7 @@ BookTransaction* searchTransaction(char* keyword, BookTransaction* transaction_h
 
     while (current)
     {
-        User* user = findUserFromID(current->user_id, user_head);
+        User* user = findUserFromID(current->user_id);
 
         if (isContain(toString(current->book_uid), keyword) || isContain(user->full_name, keyword) || \
         isContain(formatBookStatus(current->status), keyword))

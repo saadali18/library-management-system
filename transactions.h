@@ -25,8 +25,8 @@ void printTransactions(BookTransaction* head);
 BookTransaction* searchTransaction(char* keyword, BookTransaction* transaction_head, User* user_head);
 BookTransaction* filterTransactions(BookTransaction* parameters, BookTransaction* head);
 
-void rentBook(BookTransaction* transaction, Book* book_head, BookCopy* book_copy_head);
-void returnBook(int book_uid, Book* book_head, BookCopy* book_copy_head, BookTransaction* transaction_head);
+void rentBook(Book* book, User* user);
+void returnBook(int book_uid);
 
 void freeTransactionList(BookTransaction* head);
 

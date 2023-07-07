@@ -12,8 +12,8 @@ int main()
     enum book_tag tags1[] = { fantasy};
     enum book_tag tags2[] = {fantasy, fiction, scifi};
     Book* new_book1 = createBook("1234", "Annie Bananie", 1, active, tags, 2, 10, 10, 0);
-    Book* new_book2 = createBook("567", "Annie's world", 1, active, tags1, 1, 5, 5, 0);
-    Book* new_book3 = createBook("8919", "Annie's Adventure", 1, active, tags2, 3, 2, 2, 0);
+    Book* new_book2 = createBook("567", "Annie's world", 1, active, tags1, 1, 2, 2, 0);
+    Book* new_book3 = createBook("8910", "Annie's Adventure", 1, active, tags2, 3, 5, 5, 0);
     insertBook(new_book1, &library);
     insertBook(new_book2, &library);
     insertBook(new_book3, &library);
@@ -53,48 +53,49 @@ int main()
     BookCopy* copy1 = createBookCopy(01, "1234", active);
     BookCopy* copy2 = createBookCopy(02, "1234", active);
     BookCopy* copy3 = createBookCopy(03, "1234", active);
+    BookCopy* copy4 = createBookCopy(04, "567", active);
+    BookCopy* copy5 = createBookCopy(05, "567", active);
+    BookCopy* copy6 = createBookCopy(06, "8910", active);
     insertBookCopy(copy1, &inventory);
     insertBookCopy(copy2, &inventory);
     insertBookCopy(copy3, &inventory);
+    insertBookCopy(copy4, &inventory);
+    insertBookCopy(copy5, &inventory);
+    insertBookCopy(copy6, &inventory);
     printf("***INVENTORY***\n");
     printBookCopies(inventory);
 
-    Date date1 = {2023, 6, 29};
-    Date date2 = {2023, 2, 06};
-    Date date3 = {2023, 8, 11};
-    BookTransaction* rental1 = createTransaction(01, &date1, 1111, open);
-    BookTransaction* rental2 = createTransaction(02, &date2, 2222, open);
-    BookTransaction* rental3 = createTransaction(03, &date3, 3333, open);
-    insertTransaction(rental1, &transaction_list);
-    rentBook(rental1, library, inventory);
-    insertTransaction(rental2, &transaction_list);
-    rentBook(rental2, library, inventory);
-    insertTransaction(rental3, &transaction_list);
-    rentBook(rental3, library, inventory);
+    // Rent book cases:
+    rentBook(new_book1, new_user1);
+    rentBook(new_book2, new_user1);
+    rentBook(new_book2, new_user2);
+    rentBook(new_book2, new_user3);
+
     printf("***TRANSACTIONS***\n");
     printTransactions(transaction_list);
+
+    printf("***Updated Library and Inventory after Renting***\n");
+    printBooks(library);
+    printBookCopies(inventory);
+
+    returnBook(04);
+    printf("***Updated Library and Inventory after Returning***\n");
+    printBooks(library);
+    printBookCopies(inventory);
+
+    printf("***TRANSACTIONS***\n");
+    printTransactions(transaction_list);
+
     BookTransaction* searched_trans = searchTransaction("Luke", transaction_list, user_list_head); // use name to find user id linked w trans
     printf("*****Searched Transaction Results*****\n");
     printTransactions(searched_trans);
-    BookTransaction* trans_parameters = createTransaction(0, &date1, 0, no_trans_status);
+    BookTransaction* trans_parameters = createTransaction(0, getTodaysDate(), 0, no_trans_status);
     BookTransaction* filtered_trans = filterTransactions(trans_parameters, transaction_list);
     printf("*****Filtered Transaction Results*****\n");
     printTransactions(filtered_trans);
 
     freeTransactionList(searched_trans);
     freeTransactionList(filtered_trans);
-
-    printf("***Updated Library and Inventory after Renting***\n");
-    printBooks(library);
-    printBookCopies(inventory);
-
-    returnBook(01, library, inventory, transaction_list);
-
-    printf("***Updated Library and Inventory after Returning***\n");
-    printBooks(library);
-    printBookCopies(inventory);
-    printTransactions(transaction_list);
-
 
     return 0;
 }

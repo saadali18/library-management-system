@@ -38,6 +38,7 @@ Book* filterByISBN(char* input_ISBN, Book* head);
 Book* filterBooks(Book* parameters, Book* head);
 BookCopy* createBookCopy(int book_uid, char* ISBN, enum book_status status);
 void insertBookCopy(BookCopy* book_copy, BookCopy** head);
+BookCopy* getAvailableCopyOfBook(Book* book);
 void printBookCopies(BookCopy* head);
 
 void freeBookList(Book* head);
