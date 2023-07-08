@@ -164,12 +164,14 @@ Date* getTodaysDate()
 
 int isPastDue(Date* today, Date* due_date)
 {
-    if (today->year < due_date->year)   return 0;
-    if (today->year > due_date->year)  return 1;
-    if (today->month < due_date->month) return 0;
-    if (today->month > due_date->month)    return 1;
-    if (today->day <= due_date->day) return 0;
-    return 1;
+    int is_past = 0;
+    if (today->year > due_date->year)   is_past = 1;
+    else if (today->year == due_date->year)
+    {
+        if (today->month > due_date->month || (today->month == due_date->month && today->day < due_date->day))
+            is_past = 1;
+    }
+    return is_past;
 }
 
 

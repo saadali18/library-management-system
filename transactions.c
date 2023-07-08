@@ -43,6 +43,7 @@ void insertTransaction(BookTransaction* transaction, BookTransaction** head)
 void copyTransactionToResult(BookTransaction* transaction, BookTransaction** result_list)
 {
     BookTransaction* result = createTransaction(transaction->book_uid, transaction->check_out_date, transaction->user_id, transaction->status);
+    result->return_date = transaction->return_date;
     insertTransaction(result, result_list);
 }
 // Linker function
@@ -51,9 +52,10 @@ BookCopy* findBookCopy(int book_uid)
     BookCopy* current = inventory;
     while (current)
     {
-        if (current->book_uid == book_uid)  return current;
+        if (current->book_uid == book_uid)  break;
         current = current->next;
     }
+    return current;
 }
  // Linker function
 Book* findSourceBook(char* ISBN)
@@ -61,9 +63,10 @@ Book* findSourceBook(char* ISBN)
     Book* current = library;
     while(current)
     {
-        if (isMatch(current->ISBN, ISBN))   return current;
+        if (isMatch(current->ISBN, ISBN))   break;
         current = current->next;
     }
+    return current;
 }
 
 // Linker function
@@ -72,9 +75,10 @@ BookTransaction* findOriginalTransaction(int book_uid)
     BookTransaction* current = transaction_list;
     while (current)
     {
-        if (current->book_uid == book_uid)  return current;
+        if (current->book_uid == book_uid)  break;
         current = current->next;
     }
+    return current;
 }
 
 // Linker function
@@ -83,9 +87,10 @@ User* findUserFromID(int user_id)
     User* current = user_list_head;
     while (current)
     {
-        if (current->user_id == user_id)    return current;
+        if (current->user_id == user_id)    break;
         current = current->next;
     }
+    return current;
 }
 
 void rentBook(Book* book, User* user)
@@ -98,7 +103,7 @@ void rentBook(Book* book, User* user)
     }
 
     // Get the first available copy
-    BookCopy* rented_copy = getAvailableCopyOfBook(book);
+    BookCopy* rented_copy = getBookCopy(book);
 
     // Create and insert transaction
     BookTransaction* rental = createTransaction(rented_copy->book_uid, getTodaysDate(), user->user_id, open);
@@ -126,6 +131,11 @@ void returnBook(int book_uid)
 {
     // Find and update the returned book copy
     BookCopy* returned_copy = findBookCopy(book_uid);
+    if (!returned_copy)
+    {
+        printf("Unable to find record of this book transaction. Please input the correct book unique ID\n");
+        return;
+    }
     returned_copy->status = active;
 
     // Update source book count and status

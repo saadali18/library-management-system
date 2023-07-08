@@ -216,15 +216,16 @@ void insertBookCopy(BookCopy* book_copy, BookCopy** head)
     current->next = book_copy;
 }
 
-BookCopy* getAvailableCopyOfBook(Book* book)
+BookCopy* getBookCopy(Book* book)
 {
     BookCopy* current = inventory;
     while (current)
     {
         if (!strcmp(current->ISBN, book->ISBN) && current->status == active)
-            return current;
+            break;
         current = current->next;
     }
+    return current;
 }
 
 void printBookCopies(BookCopy* head)
