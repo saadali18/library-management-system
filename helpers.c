@@ -2,29 +2,37 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
+#include "helpers.h"
 
 char* formatBookStatus(int status)
 {
-    char* book_s[] = { "inactive", "active" };
+    char* book_s[] = { "none", "inactive", "active" };
     return book_s[status];
 }
 
 char* formatBookTag(int tag)
 {
-    char* book_t[] = { "biography", "fantasy", "fiction", "mystery", "romance", "sci fi", "thriller", "young adult" };
+    char* book_t[] = { "none", "biography", "fantasy", "fiction", "mystery", "romance", "scifi", "thriller", "young adult" };
     return book_t[tag];
 }
 
 char* formatUserCred(int title)
 {
-    char* cred[] = { "author", "customer", "librarian" };
+    char* cred[] = { "none", "author", "customer", "librarian" };
     return cred[title];
 }
 
 char* formatUserStatus(int status)
 {
-    char* user_s[] = { "inactive", "active", "delinquent" };
+    char* user_s[] = { "none", "inactive", "active", "delinquent" };
     return user_s[status];
+}
+
+char* formatTransactionStatus(int status)
+{
+    char* trans_s[] = {"none", "open", "close", "past due" };
+    return trans_s[status];
 }
 
 char* toLowerCase(const char* string) // Convert string to lower case, ignore number
@@ -36,7 +44,7 @@ char* toLowerCase(const char* string) // Convert string to lower case, ignore nu
 
     for (int i = 0; i < len; i++)
     {
-        new_string[i] = tolower(string[i]); // exception thrown - access violation here
+        new_string[i] = tolower(string[i]);
     }
     new_string[len] = '\0';
     return new_string;
@@ -46,8 +54,39 @@ int isContain(char* data, char* keyword) // Check if a string contain the keywor
 {
     if (!data || !keyword)	return 0;
 
-    if (!strstr(toLowerCase(data), toLowerCase(keyword)))	return 0;
-    else	return 1;
+    char* lower_case_data = toLowerCase(data);
+    char* lower_case_keyword = toLowerCase(keyword);
+    if (!strstr(lower_case_data, lower_case_keyword))
+    {
+        free(lower_case_data);
+        free(lower_case_keyword);
+        return 0;
+    }
+    else
+    {
+        free(lower_case_data);
+        free(lower_case_keyword);
+        return 1; // a match
+    }
+}
+
+int isMatch(char* data, char* input)
+{
+    if (!data || !input)    return 0; // if either is NULL = not match
+    char* lower_case_data = toLowerCase(data);
+    char* lower_case_input = toLowerCase(input);
+    if (strcmp(lower_case_data, lower_case_input))
+    {
+        free(lower_case_data);
+        free(lower_case_input);
+        return 0; // not match
+    }
+    else
+    {
+        free(lower_case_data);
+        free(lower_case_input);
+        return 1; // a match
+    }
 }
 
 int countDigits(long num)
@@ -66,9 +105,73 @@ int countDigits(long num)
     return count;
 }
 
-char* toString(long num)
+char* toString(int num)
 {
     char* num_string = malloc(countDigits(num + 1) * sizeof(char));
-    sprintf(num_string, "%ld", num);
+    sprintf(num_string, "%i", num);
     return num_string;
 }
+
+const int rental_days = 90;
+
+Date* addDaysToDates(Date* date, int days)
+{
+    Date* calculated_date = malloc(sizeof(Date));
+    calculated_date->year = date->year;
+    calculated_date->month = date->month;
+    calculated_date->day = date->day;
+
+    int days_in_month[] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+    calculated_date->day += days;
+
+    while (calculated_date->day > days_in_month[calculated_date->month])
+    {
+        calculated_date->day -= days_in_month[calculated_date->month];
+        calculated_date->month++;
+
+        if (calculated_date->month > 12)
+        {
+            calculated_date->month -= 12;
+            calculated_date->year++;
+        }
+    }
+
+    return calculated_date;
+}
+
+int compareDate(Date* date1, Date* date2)
+{
+    if (date1->year == date2->year && date1->month == date2->month && date1->day == date2->day)
+        return 1;
+    else return 0;
+}
+
+Date* getTodaysDate()
+{
+    time_t current_time;
+    time(&current_time);
+
+    struct tm* local_time = localtime(&current_time);
+
+    Date* today = malloc(sizeof(Date));
+    today->year = local_time->tm_year + 1900;
+    today->month = local_time->tm_mon + 1;
+    today->day = local_time->tm_mday;
+
+    return today;
+}
+
+int isPastDue(Date* today, Date* due_date)
+{
+    int is_past = 0;
+    if (today->year > due_date->year)   is_past = 1;
+    else if (today->year == due_date->year)
+    {
+        if (today->month > due_date->month || (today->month == due_date->month && today->day < due_date->day))
+            is_past = 1;
+    }
+    return is_past;
+}
+
+

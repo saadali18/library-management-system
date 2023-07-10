@@ -1,9 +1,9 @@
-#ifndef LMS_PRACTICE_ANNIE_CODE_USERS_H
-#define LMS_PRACTICE_ANNIE_CODE_USERS_H
+#ifndef USERS_H
+#define USERS_H
 
-enum credential { author, customer, librarian };
+enum credential { no_credential, author, customer, librarian };
 
-enum user_status { inactive_user, active_user, delinquent };
+enum user_status { no_user_status, inactive_user, active_user, delinquent };
 
 typedef struct User
 {
@@ -19,16 +19,14 @@ typedef struct User
 
 extern User* user_list_head;
 
-User* createUser(int user_id, char* full_name, char* login_name, char* password, char* email, enum credential title);
+User* createUser(int user_id, char* full_name, char* login_name, char* password, char* email, enum credential title, enum user_status status);
 void insertUser(User* user, User** head);
-void printUser(User* user);
-User* searchUsers(char* keyword, User** head);
-User* filterbyUserID(int input_ID, User** head);
-User* filterbyFullName(char* input_full_name, User** head);
-User* filterbyLoginName(char* input_login_name, User** head);
-User* filterbyEmail(char* input_email, User** head);
-User* filterbyUserTitle(int input_title, User** head);
-User* filterbyUserStatus(int input_status, User** head);
-User* filterUsers(User* parameters, User** head);
+void printUser(User* head);
+User* searchUsers(char* keyword, User* head);
+User* filterByUserID(int input_ID, User* head);
+User* filterUsers(User* parameters, User* head);
+
+void freeUserList(User* head);
+
 
 #endif

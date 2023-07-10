@@ -4,8 +4,9 @@
 #include "helpers.h"
 #include "users.h"
 
+User* user_list_head = NULL;
 
-User* createUser(int user_id, char* full_name, char* login_name, char* password, char* email, enum credential title)
+User* createUser(int user_id, char* full_name, char* login_name, char* password, char* email, enum credential title, enum user_status status)
 {
     User* user = malloc(sizeof(User));
     if (!user)
@@ -20,15 +21,15 @@ User* createUser(int user_id, char* full_name, char* login_name, char* password,
     user->password = password;
     user->email = email;
     user->title = title;
-    user->status = active_user;
-    user->next = NULL; // Add new user to end of list
+    user->status = status;
+    user->next = NULL;
 
     return user;
 }
 
 void insertUser(User* user, User** head)
 {
-    if (!*head) // exception thrown - access violation here - error msg: **head** was nullptr
+    if (!*head)
     {
         *head = user;
         return;
@@ -39,103 +40,162 @@ void insertUser(User* user, User** head)
     current->next = user;
 }
 
-void printUser(User* user)
+void copyUserToResult(User* user, User** result_list)
 {
-    printf("User ID: %i\n", user->user_id);
-    printf("Full name: %s\n", user->full_name);
-    printf("Login name: %s\n", user->login_name);
-    printf("Password: %s\n", user->password);
-    printf("Email: %s\n", user->email);
-    printf("Title: %s\n", formatUserCred(user->title));
-    printf("Status: %s\n\n", formatUserStatus(user->status));
+    User* result = createUser(user->user_id, user->full_name, user->login_name, user->password,\
+    user->email, user->title, user->status);
+    insertUser(result, result_list);
 }
 
-
-User* searchUsers(char* keyword, User** head)
+void printUser(User* head)
 {
-//    TODO: Build it like books.c search function
+    User* user = head;
+    while (user)
+    {
+        printf("User ID: %i\n", user->user_id);
+        printf("Full name: %s\n", user->full_name);
+        printf("Login name: %s\n", user->login_name);
+        printf("Password: %s\n", user->password);
+        printf("Email: %s\n", user->email);
+        printf("Title: %s\n", formatUserCred(user->title));
+        printf("Status: %s\n\n", formatUserStatus(user->status));
+        user = user->next;
+    }
 }
 
-User* filterbyUserID(int input_ID, User** head)
+User* searchUsers(char* keyword, User* head)
+{
+    User* search_result = NULL;
+    User* current = head;
+    if (!current)
+    {
+        printf("User list is empty\n");
+        return NULL;
+    }
+
+    while (current)
+    {
+        if (isContain(toString(current->user_id), keyword) || isContain(current->full_name, keyword) || \
+        isContain(current->login_name, keyword) || isContain(current->email, keyword) || \
+        isContain(formatUserCred(current->title), keyword) || isContain(formatUserStatus(current->status), keyword))
+        {
+            copyUserToResult(current, &search_result);
+        }
+        current = current->next;
+    }
+    return search_result;
+}
+
+User* filterByUserID(int input_ID, User* head)
 {
     User* filtered_result = NULL;
-    User* current = *head;
+    User* current = head;
     while (current)
     {
         if (current->user_id == input_ID)
-            insertUser(current, &filtered_result);
+        {
+            copyUserToResult(current, &filtered_result);
+            return filtered_result; // unique, should only return 1 record
+        }
         current = current->next;
     }
-    return filtered_result;
 }
 
-User* filterbyFullName(char* input_full_name, User** head)
+User* filterByFullName(char* input_full_name, User* head)
 {
     User* filtered_result = NULL;
-    User* current = *head;
+    User* current = head;
     while (current)
     {
-        if (!strcmp(current->full_name, input_full_name)) // exception thrown, access violation reading location
-            insertUser(current, &filtered_result);
+        if (isMatch(current->full_name, input_full_name))
+            copyUserToResult(current, &filtered_result);
         current = current->next;
     }
     return filtered_result;
 }
 
-User* filterbyLoginName(char* input_login_name, User** head)
+User* filterByLoginName(char* input_login_name, User* head)
 {
     User* filtered_result = NULL;
-    User* current = *head;
+    User* current = head;
     while (current)
     {
-        if (!strcmp(current->login_name, input_login_name)) // if match
-            insertUser(current, &filtered_result);
+        if (isMatch(current->login_name, input_login_name))
+            copyUserToResult(current, &filtered_result);
         current = current->next;
     }
     return filtered_result;
 }
 
-User* filterbyEmail(char* input_email, User** head)
+User* filterByEmail(char* input_email, User* head)
 {
     User* filtered_result = NULL;
-    User* current = *head;
+    User* current = head;
     while (current)
     {
-        if (!strcmp(current->email, input_email)) // if match
-            insertUser(current, &filtered_result);
+        if (isMatch(current->email, input_email))
+            copyUserToResult(current, &filtered_result);
         current = current->next;
     }
     return filtered_result;
 }
 
-User* filterbyUserTitle(int input_title, User** head)
+User* filterByUserTitle(enum credential input_title, User* head)
 {
     User* filtered_result = NULL;
-    User* current = *head;
+    User* current = head;
     while (current)
     {
         if (current->title == input_title)
-            insertUser(current, &filtered_result);
+            copyUserToResult(current, &filtered_result);
         current = current->next;
     }
     return filtered_result;
 }
 
-User* filterbyUserStatus(int input_status, User** head)
+User* filterByUserStatus(enum user_status input_status, User* head)
 {
     User* filtered_result = NULL;
-    User* current = *head;
+    User* current = head;
     while (current)
     {
         if (current->status == input_status)
-            insertUser(current, &filtered_result);
+            copyUserToResult(current, &filtered_result);
         current = current->next;
     }
     return filtered_result;
 }
 
-User* filterUsers(User* parameters, User** head)
+User* filterUsers(User* parameters, User* head)
 {
-//    TODO: Build it like books.c filter function
+    User* filtered_users = head;
+    if (parameters->user_id > 0) filtered_users = filterByUserID(parameters->user_id, filtered_users);
+    if (parameters->full_name) filtered_users = filterByFullName(parameters->full_name, filtered_users);
+    if (parameters->login_name) filtered_users = filterByLoginName(parameters->login_name, filtered_users);
+    if (parameters->email) filtered_users = filterByEmail(parameters->email, filtered_users);
+    if (parameters->title > 0) filtered_users = filterByUserTitle(parameters->title, filtered_users);
+    if (parameters->status > 0) filtered_users = filterByUserStatus(parameters->status, filtered_users);
+    return filtered_users;
 }
 
+int countUsers(User* head)
+{
+    int count = 0;
+    User* current = head;
+    while (current)
+    {
+        count++;
+        current = current->next;
+    }
+    return count;
+}
+
+void freeUserList(User* head)
+{
+    while (head)
+    {
+        User* temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
