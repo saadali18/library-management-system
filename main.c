@@ -1,9 +1,10 @@
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
 #include "users.h"
 #include "transactions.h"
 #include "books.h"
 #include "helpers.h"
+#include "auth.h"
 
 int main()
 {
@@ -96,6 +97,14 @@ int main()
 
     freeTransactionList(searched_trans);
     freeTransactionList(filtered_trans);
+
+    char* login_name = getLoginName();
+    char* password = getPassword();
+    login(login_name, password);
+    // Do something in between
+    free(login_name);
+    free(password);
+    logout();
 
     return 0;
 }
