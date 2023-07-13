@@ -33,7 +33,9 @@ Book* createBook(char* ISBN, char* title, int author_id, enum book_status status
             free(book);
             return NULL;
         }
-        for (int i = 0; i < tag_count; i++)	book->tags[i] = tags[i];
+        for (int i = 0; i < tag_count; i++)	{
+            book->tags[i] = tags[i];
+        }
     }
     else    book->tags = NULL;
 
