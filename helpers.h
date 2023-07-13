@@ -26,5 +26,6 @@ Date* addDaysToDates(Date* date, int days);
 int compareDate(Date* date1, Date* date2);
 Date* getTodaysDate();
 int isPastDue(Date* today, Date* due_date);
+char* strsep(char** stringp, const char* delim);
 
 #endif
