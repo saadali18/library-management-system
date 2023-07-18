@@ -1,3 +1,4 @@
+ISBN,Title,AuthorID,Status,BookTags,TagCount,TotalCount,InStockCount,Likes
 9781234567890,The Adventures of Alice,1234,2,1-2-3,3,8,8,20
 9780987654321,Journey to the Unknown,5678,2,2-4,2,6,6,10
 9789876543210,The Secret Garden,4321,2,3-1-2-4,4,9,9,30

@@ -58,7 +58,8 @@ void printUser(User* head)
         printf("Password: %s\n", user->password);
         printf("Email: %s\n", user->email);
         printf("Title: %s\n", formatUserCred(user->title));
-        printf("Status: %s\n\n", formatUserStatus(user->status));
+        printf("Status: %s\n", formatUserStatus(user->status));
+        printf("--------------------\n");
         user = user->next;
     }
 }

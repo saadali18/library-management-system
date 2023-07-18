@@ -72,7 +72,7 @@ void printBooks(Book* head)
     while (book){
         printf("ISBN number: %s\n", book->ISBN);
         printf("Title: %s\n", book->title);
-        printf("Author ID: %i\n", book->author_id);
+        printf("Author ID: %04i\n", book->author_id);
         printf("Book Status: %s\n", formatBookStatus(book->status));
         printf("Book Tags: ");
         for (int i = 0; i < book->tag_count; i++)
