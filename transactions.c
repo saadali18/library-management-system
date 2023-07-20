@@ -113,7 +113,7 @@ void rentBook(Book* book, User* user)
     if (rental)
     {
         printf("Rental transaction is successful!\n");
-        printf("Customer: %s\nBook title: %s\nBook Copy UID: %i\n", user->full_name, book->title, rented_copy->book_uid);
+        printf("Customer: %s\nBook title: %s\nBook Copy UID: %04i\n", user->full_name, book->title, rented_copy->book_uid);
         printf("Please return the book by: %i/%i/%i\n", rental->due_date->month, rental->due_date->day, rental->due_date->year);
         printf("---------------------------\n");
     }

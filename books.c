@@ -235,7 +235,7 @@ void printBookCopies(BookCopy* head)
     BookCopy* copy = head;
     while (copy)
     {
-        printf("Book UID: %02i\n", copy->book_uid);
+        printf("Book UID: %04i\n", copy->book_uid);
         printf("ISBN: %s\n", copy->ISBN);
         printf("Status: %s\n", formatBookStatus(copy->status));
         printf("--------------------------\n");

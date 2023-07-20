@@ -1,7 +1,7 @@
 UserID,FullName,LogInName,Password,Email,Title,Status
-1,Robert Johnson,robertj12,librarianpass1,robert.johnson@example.com,3,2
-2,Olivia Brown,oliviab123,librarianpass2,olivia.brown@example.com,3,2
-3,William Davis,williamd19,librarianpass3,william.davis@example.com,3,2
+0001,Robert Johnson,robertj12,librarianpass1,robert.johnson@example.com,3,2
+0002,Olivia Brown,oliviab123,librarianpass2,olivia.brown@example.com,3,2
+0003,William Davis,williamd19,librarianpass3,william.davis@example.com,3,2
 2001,Emily Wilson,emilywilson34,customerpass1,emily.wilson@example.com,2,2
 2002,Jacob Thompson,jthompson45,customerpass2,jacob.thompson@example.com,2,2
 2003,Sophia Clark,sophiaclark23,customerpass3,sophia.clark@example.com,2,2

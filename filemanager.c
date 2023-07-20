@@ -90,15 +90,15 @@ void insertParsedBookRecord(Record* book_record, Book** book_head)
     book->author_id = atoi(strsep(&book_record->data, ","));
     book->status = atoi(strsep(&book_record->data, ","));
     // Handle tags field
-    char* tags = strsep(&book_record->data, ",");
     book->tag_count = atoi(strsep(&book_record->data, ","));
+    char* tags = strsep(&book_record->data, ",");
     if (book->tag_count > 0) {
         book->tags = malloc(book->tag_count * sizeof(enum book_tag));
         for (int i = 0; i < book->tag_count; i++) {
             char *tag = strsep(&tags, "-");
             book->tags[i] = atoi(tag);
         }
-    }
+    } else  book->tags = NULL;
     book->total_count = atoi(strsep(&book_record->data, ","));
     book->in_stock_count = atoi(strsep(&book_record->data, ","));
     book->likes = atoi(book_record->data);
@@ -135,19 +135,19 @@ void saveBooks(const char* file_name, Book* book_head)
         printf("Could not open file.\n");
         return;
     }
-    fprintf(file,"ISBN,Title,AuthorID,Status,BookTags,TagCount,TotalCount,InStockCount,Likes\n");
+    fprintf(file,"ISBN,Title,AuthorID,Status,TagCount,BookTags,TotalCount,InStockCount,Likes\n");
     Book* current = book_head;
     while (current) {
-        fprintf(file, "%s,%s,%i,%i,", current->ISBN, current->title, current->author_id, current->status);
+        fprintf(file, "%s,%s,%04i,%i,", current->ISBN, current->title, current->author_id, current->status);
         // Handle tags
         if (current->tag_count > 0) {
+            fprintf(file, "%i,", current->tag_count);
             for (int i = 0; i < current->tag_count; i++) {
                 fprintf(file, "%i", current->tags[i]);
                 if (i != (current->tag_count - 1))  fprintf(file, "-");
             }
-            fprintf(file, ",%i", current->tag_count);
         }
-        else fprintf(file, ",0");
+        else fprintf(file, "0,");
 
         fprintf(file, ",%i,%i,%i\n", current->total_count, current->in_stock_count, current->likes);
         current = current->next;
@@ -201,7 +201,7 @@ void saveBookCopies(const char* file_name, BookCopy* book_copy_head)
     fprintf(file, "BookUID,ISBN,Status\n");
     BookCopy* current = book_copy_head;
     while (current) {
-        fprintf(file, "%i,%s,%i\n", current->book_uid, current->ISBN, current->status);
+        fprintf(file, "%04i,%s,%i\n", current->book_uid, current->ISBN, current->status);
         current = current->next;
     }
     fclose(file);
@@ -257,7 +257,7 @@ void saveUsers(const char* file_name, User* user_head)
     fprintf(file, "UserID,FullName,LogInName,Password,Email,Title,Status\n");
     User* current = user_head;
     while (current) {
-        fprintf(file, "%i,%s,%s,%s,%s,%i,%i\n", current->user_id, current->full_name, current->login_name,
+        fprintf(file, "%04i,%s,%s,%s,%s,%i,%i\n", current->user_id, current->full_name, current->login_name,
                 current->password, current->email, current->title, current->status);
         current = current->next;
     }
