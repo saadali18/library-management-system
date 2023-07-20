@@ -5,10 +5,11 @@
 #include "books.h"
 #include "helpers.h"
 #include "auth.h"
+#include "filemanager.h"
 
 int main()
 {
-    printf("Welcome to the Library Management System!\n");
+    /* printf("Welcome to the Library Management System!\n");
     enum book_tag tags[] = { fantasy, fiction };
     enum book_tag tags1[] = { fantasy};
     enum book_tag tags2[] = {fantasy, fiction, scifi};
@@ -104,7 +105,32 @@ int main()
     // Do something in between
     free(login_name);
     free(password);
-    logout();
+    logout();*/
+
+    // FILE MANAGEMENT
+    readRecord(book_file, &book_record_head);
+    printRecord(book_record_head);
+    loadBooks(book_record_head, &library);
+    printBooks(library);
+    saveBooks(book_file, library);
+
+    readRecord(book_copy_file, &book_copy_record_head);
+    printRecord(book_copy_record_head);
+    loadBookCopies(book_copy_record_head, &inventory);
+    printBookCopies(inventory);
+    saveBookCopies(book_copy_file, inventory);
+
+    readRecord(user_file, &user_record_head);
+    printRecord(user_record_head);
+    loadUsers(user_record_head, &user_list_head);
+    printUser(user_list_head);
+    saveUsers(user_file, user_list_head);
+
+    readRecord(transaction_file, &transaction_record_head);
+    printRecord(transaction_record_head);
+    loadTransactions(transaction_record_head, &transaction_list);
+    printTransactions(transaction_list);
+    saveTransactions(transaction_file, transaction_list);
 
     return 0;
 }

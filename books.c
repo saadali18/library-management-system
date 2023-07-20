@@ -33,7 +33,9 @@ Book* createBook(char* ISBN, char* title, int author_id, enum book_status status
             free(book);
             return NULL;
         }
-        for (int i = 0; i < tag_count; i++)	book->tags[i] = tags[i];
+        for (int i = 0; i < tag_count; i++)	{
+            book->tags[i] = tags[i];
+        }
     }
     else    book->tags = NULL;
 
@@ -70,7 +72,7 @@ void printBooks(Book* head)
     while (book){
         printf("ISBN number: %s\n", book->ISBN);
         printf("Title: %s\n", book->title);
-        printf("Author ID: %i\n", book->author_id);
+        printf("Author ID: %04i\n", book->author_id);
         printf("Book Status: %s\n", formatBookStatus(book->status));
         printf("Book Tags: ");
         for (int i = 0; i < book->tag_count; i++)
@@ -233,7 +235,7 @@ void printBookCopies(BookCopy* head)
     BookCopy* copy = head;
     while (copy)
     {
-        printf("Book UID: %02i\n", copy->book_uid);
+        printf("Book UID: %04i\n", copy->book_uid);
         printf("ISBN: %s\n", copy->ISBN);
         printf("Status: %s\n", formatBookStatus(copy->status));
         printf("--------------------------\n");

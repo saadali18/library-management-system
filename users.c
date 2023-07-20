@@ -52,13 +52,14 @@ void printUser(User* head)
     User* user = head;
     while (user)
     {
-        printf("User ID: %i\n", user->user_id);
+        printf("User ID: %04i\n", user->user_id);
         printf("Full name: %s\n", user->full_name);
         printf("Login name: %s\n", user->login_name);
         printf("Password: %s\n", user->password);
         printf("Email: %s\n", user->email);
         printf("Title: %s\n", formatUserCred(user->title));
-        printf("Status: %s\n\n", formatUserStatus(user->status));
+        printf("Status: %s\n", formatUserStatus(user->status));
+        printf("--------------------\n");
         user = user->next;
     }
 }
