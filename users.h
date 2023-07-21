@@ -24,6 +24,7 @@ void insertUser(User* user, User** head);
 void printUser(User* head);
 User* searchUsers(char* keyword, User* head);
 User* filterByUserID(int input_ID, User* head);
+User* filterByFullName(char* input_full_name, User* head);
 User* filterUsers(User* parameters, User* head);
 
 void freeUserList(User* head);

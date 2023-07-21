@@ -160,6 +160,58 @@ Book* filterByTotalCount(int input_count, Book* head)
     return filtered_result;
 }
 
+Book* filterByInStockCount(int input_count, Book* head)
+{
+    Book* filtered_result = NULL;
+    Book* current = head;
+    while (current)
+    {
+        if (current->in_stock_count >= input_count)
+            copyBookToResult(current, &filtered_result);
+        current = current->next;
+    }
+    return filtered_result;
+}
+
+Book* filterByLikes(int input_likes, Book* head)
+{
+    Book* filtered_result = NULL;
+    Book* current = head;
+    while (current)
+    {
+        if (current->likes >= input_likes)
+            copyBookToResult(current, &filtered_result);
+        current = current->next;
+    }
+    return filtered_result;
+}
+
+Book* filterByAuthorID(int input_author_id, Book* head)
+{
+    Book* filtered_result = NULL;
+    Book* current = head;
+    while (current)
+    {
+        if (current->author_id >= input_author_id)
+            copyBookToResult(current, &filtered_result);
+        current = current->next;
+    }
+    return filtered_result;
+}
+
+Book* filterByBookStatus(int input_book_status, Book* head)
+{
+    Book* filtered_result = NULL;
+    Book* current = head;
+    while (current)
+    {
+        if (current->author_id >= input_book_status)
+            copyBookToResult(current, &filtered_result);
+        current = current->next;
+    }
+    return filtered_result;
+}
+
 Book* filterByTags(enum book_tag* input_tags, int input_tag_count, Book* head) // return books only if all tags matched
 {
     Book* filtered_result = NULL;
@@ -185,8 +237,12 @@ Book* filterBooks(Book* parameters, Book* head){
 
     if (parameters->ISBN) filtered_books = filterByISBN(parameters->ISBN, filtered_books);
     if (parameters->title) filtered_books = filterByTitle(parameters->title, filtered_books);
-    if (parameters->total_count > 0) filtered_books = filterByTotalCount(parameters->total_count, filtered_books);
+    if (parameters->author_id > 0) filtered_books = filterByAuthorID(parameters->author_id, filtered_books);
+    if (parameters->status > 0) filtered_books = filterByBookStatus(parameters->status, filtered_books);
     if (parameters->tag_count > 0)   filtered_books = filterByTags(parameters->tags, parameters->tag_count, filtered_books);
+    if (parameters->total_count > 0) filtered_books = filterByTotalCount(parameters->total_count, filtered_books);
+    if (parameters->in_stock_count > 0) filtered_books = filterByInStockCount(parameters->in_stock_count, filtered_books);
+    if (parameters->likes > 0) filtered_books = filterByLikes(parameters->likes, filtered_books);
     return filtered_books;
 }
 
@@ -275,6 +331,63 @@ void freeBookList(Book* head)
         head = head->next;
         free(temp);
     }
+}
+
+int deleteBook(char* input_ISBN)     // Delete source book
+{
+    Book* previous = NULL;
+    Book* current = library;
+
+    if (!current) {
+        printf("Library is empty.\n");
+        return 0;
+    }
+
+    while (current) {
+        if (isMatch(current->ISBN, input_ISBN)) {
+            if (!previous) { // if match @ head
+                library = current->next;
+            } else {
+                previous->next = current->next;
+            }
+            free(current);
+            return 1; // Book found and deleted, return because there should only 1 book match
+        }
+        previous = current;
+        current = current->next;
+    }
+    return 0; // Not found
+}
+
+int deleteBookCopies(char* input_ISBN)
+{
+    int deleted_book_copies_count = 0;
+    BookCopy* previous = NULL;
+    BookCopy* current = inventory;
+
+    if (!current) {
+        printf("Inventory is empty.\n");
+        return 0;
+    }
+    // Delete all matching book copies
+    while (current) {
+        if (isMatch(current->ISBN, input_ISBN)) {
+            if (!previous) { // If match @ head
+                inventory = current->next;
+                free(current);
+                current = inventory;
+            } else {
+                previous-> next = current->next;
+                free(current);
+                current = previous->next;
+            }
+            deleted_book_copies_count++;
+        } else {
+            previous = current;
+            current = current->next;
+        }
+    }
+    return deleted_book_copies_count;
 }
 
 

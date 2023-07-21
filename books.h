@@ -42,5 +42,7 @@ BookCopy* getBookCopy(Book* book);
 void printBookCopies(BookCopy* head);
 
 void freeBookList(Book* head);
+int deleteBook(char* input_ISBN);
+int deleteBookCopies(char* input_ISBN);
 
 #endif

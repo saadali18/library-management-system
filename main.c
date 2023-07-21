@@ -9,128 +9,167 @@
 
 int main()
 {
-    /* printf("Welcome to the Library Management System!\n");
-    enum book_tag tags[] = { fantasy, fiction };
-    enum book_tag tags1[] = { fantasy};
-    enum book_tag tags2[] = {fantasy, fiction, scifi};
-    Book* new_book1 = createBook("1234", "Annie Bananie", 1, active, tags, 2, 10, 10, 0);
-    Book* new_book2 = createBook("567", "Annie's world", 1, active, tags1, 1, 2, 2, 0);
-    Book* new_book3 = createBook("8910", "Annie's Adventure", 1, active, tags2, 3, 5, 5, 0);
-    insertBook(new_book1, &library);
-    insertBook(new_book2, &library);
-    insertBook(new_book3, &library);
-    printf("***LIBRARY***\n");
-    printBooks(library);
-    Book* searched_books = searchBooks("Fantasy", library);
-    printf("*****Searched Book Results*****\n");
-    printBooks(searched_books);
-    enum book_tag filter_tags[] = { fantasy, fiction};
-    Book* filterBy = createBook(NULL, NULL, 0, no_book_status,filter_tags, 2, 0, 0, 0);
-    Book* filtered_books = filterBooks(filterBy, library);
-    printf("*****Filtered Book Results*****\n");
-    printBooks(filtered_books);
-
-    freeBookList(searched_books);
-    freeBookList(filtered_books);
-
-    User* new_user1 = createUser(1111, "Luke Skywalker", "luke.s", "luke", "luke.s@gmail.com", author, active_user);
-    User* new_user2 = createUser(2222, "Obiwan Kenobi", "obiwan.k", "obiwan", "obiwan.k@gmail.com", customer, active_user);
-    User* new_user3 = createUser(3333, "Darth Vader", "darth.v", "darth", "darth.v@gmail.com", librarian, active_user);
-    insertUser(new_user1, &user_list_head);
-    insertUser(new_user2, &user_list_head);
-    insertUser(new_user3, &user_list_head);
-    printf("***USERS***\n");
-    printUser(user_list_head);
-    User* searched_users = searchUsers("VADER", user_list_head);
-    printf("*****Searched User Results*****\n");
-    printUser(searched_users);
-    User* user_parameters = createUser(-1, NULL, NULL, NULL, NULL, customer, active_user);
-    User* filtered_users = filterUsers(user_parameters, user_list_head);
-    printf("*****Filtered User Results*****\n");
-    printUser(filtered_users);
-
-    freeUserList(searched_users);
-    freeUserList(filtered_users);
-
-    BookCopy* copy1 = createBookCopy(01, "1234", active);
-    BookCopy* copy2 = createBookCopy(02, "1234", active);
-    BookCopy* copy3 = createBookCopy(03, "1234", active);
-    BookCopy* copy4 = createBookCopy(04, "567", active);
-    BookCopy* copy5 = createBookCopy(05, "567", active);
-    BookCopy* copy6 = createBookCopy(06, "8910", active);
-    insertBookCopy(copy1, &inventory);
-    insertBookCopy(copy2, &inventory);
-    insertBookCopy(copy3, &inventory);
-    insertBookCopy(copy4, &inventory);
-    insertBookCopy(copy5, &inventory);
-    insertBookCopy(copy6, &inventory);
-    printf("***INVENTORY***\n");
-    printBookCopies(inventory);
-
-    // Rent book cases:
-    rentBook(new_book1, new_user1);
-    rentBook(new_book2, new_user1);
-    rentBook(new_book2, new_user2);
-    rentBook(new_book2, new_user3);
-
-    printf("***TRANSACTIONS***\n");
-    printTransactions(transaction_list);
-
-    printf("***Updated Library and Inventory after Renting***\n");
-    printBooks(library);
-    printBookCopies(inventory);
-
-    returnBook(04);
-    printf("***Updated Library and Inventory after Returning***\n");
-    printBooks(library);
-    printBookCopies(inventory);
-
-    printf("***TRANSACTIONS***\n");
-    printTransactions(transaction_list);
-
-    BookTransaction* searched_trans = searchTransaction("Luke", transaction_list, user_list_head); // use name to find user id linked w trans
-    printf("*****Searched Transaction Results*****\n");
-    printTransactions(searched_trans);
-    BookTransaction* trans_parameters = createTransaction(0, getTodaysDate(), 0, no_trans_status);
-    BookTransaction* filtered_trans = filterTransactions(trans_parameters, transaction_list);
-    printf("*****Filtered Transaction Results*****\n");
-    printTransactions(filtered_trans);
-
-    freeTransactionList(searched_trans);
-    freeTransactionList(filtered_trans);
-
-    char* login_name = getLoginName();
-    char* password = getPassword();
-    login(login_name, password);
-    // Do something in between
-    free(login_name);
-    free(password);
-    logout();*/
-
     // FILE MANAGEMENT
     readRecord(book_file, &book_record_head);
-    printRecord(book_record_head);
     loadBooks(book_record_head, &library);
-    printBooks(library);
-    saveBooks(book_file, library);
 
     readRecord(book_copy_file, &book_copy_record_head);
-    printRecord(book_copy_record_head);
     loadBookCopies(book_copy_record_head, &inventory);
-    printBookCopies(inventory);
-    saveBookCopies(book_copy_file, inventory);
+
 
     readRecord(user_file, &user_record_head);
-    printRecord(user_record_head);
     loadUsers(user_record_head, &user_list_head);
-    printUser(user_list_head);
-    saveUsers(user_file, user_list_head);
+
 
     readRecord(transaction_file, &transaction_record_head);
-    printRecord(transaction_record_head);
     loadTransactions(transaction_record_head, &transaction_list);
-    printTransactions(transaction_list);
-    saveTransactions(transaction_file, transaction_list);
 
+
+    printf("Welcome to the Library Management System!\n");
+    char* login_name;
+    char* password;
+    User* current_user;
+    do {
+        login_name = getLoginName();
+        password = getPassword();
+        current_user = login(login_name, password);
+    } while (!current_user);
+
+    if (current_user->title == librarian) {
+        int category;
+        printf("***** Librarian Portal *****\n");
+        printf("1. BOOKS\t2. USERS\t3. TRANSACTIONS\t 4. LOG OUT\n");
+        scanf("%i", &category);
+        switch(category) {
+            case 1: // BOOKS
+                printf("1. View all books\t2. Search books by keywords\n"
+                       "3. Search books by filters\t4. Delete book\n");
+                int choice;
+                scanf("%i", &choice);
+                switch(choice) {
+                    case 1:
+                        printBooks(library);
+                        break;
+                    case 2:
+                        printf("Input your keyword: ");
+                        char* keyword = malloc(100);
+                        scanf("%s", keyword);
+                        Book* searched_books = searchBooks(keyword, library);
+                        printBooks(searched_books);
+                        freeBookList(searched_books);
+                        free(keyword);
+                        break;
+                    case 3: {
+                        char *ISBN = malloc(20);
+                        char *title = malloc(100);
+                        char *author_name = malloc(50);
+                        enum book_status status = 0;
+                        int author_id = 0, tag_count = 0, total_count = 0, in_stock_count = 0, likes = 0;
+                        enum book_tag *tags = NULL;
+                        int selection;
+                        printf("Select 0 for No\t Select 1 for Yes\n");
+                        printf("Filtered by ISBN? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("Input ISBN: ");
+                            scanf("%s", ISBN);
+                        }
+                        printf("Filtered by Title? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("Input Title: ");
+                            scanf("%s", title);
+                        }
+                        printf("Filtered by Author's name? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("Input Author's name: ");
+                            scanf("%s", author_name);
+                            User *filtered_author = filterByFullName(author_name, user_list_head);
+                            author_id = filtered_author->user_id;
+                            free(author_name);
+                        }
+                        printf("Filtered by Book Status? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("Select 1 for inactive\tSelect 2 for active\n");
+                            scanf("%i", &status);
+                        }
+                        printf("Filtered by Book Tags? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("How many tags: ");
+                            scanf("%i", &tag_count);
+                            tags = malloc(tag_count * sizeof(enum book_tag));
+                            for (int i = 0; i < tag_count; i++) {
+                                printf("1. biography\t2. fantasy\t3. fiction\t4. mystery\n"
+                                       "5. romance\t6. scifi\t7. thriller\t8. young_adult\n");
+                                scanf("%i", &tags[i]);
+                            }
+                        }
+                        printf("Filtered by Total Count? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("Input count: ");
+                            scanf("%i", &total_count);
+                        }
+                        printf("Filtered by In-Stock Count? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("Input count: ");
+                            scanf("%i", &in_stock_count);
+                        }
+                        printf("Filtered by Likes? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("Input likes: ");
+                            scanf("%i", &likes);
+                        }
+                        Book *filterBy = createBook(ISBN, title, author_id, status, tags, tag_count, total_count,
+                                                    in_stock_count, likes);
+                        Book *filtered_books = filterBooks(filterBy, library);
+                        printBooks(filtered_books);
+                        freeBookList(filtered_books);
+                        break;
+                    }
+                    case 4:
+                        printf("Enter ISBN of book to be deleted: ");
+                        char* ISBN = malloc(20);
+                        scanf("%s", ISBN);
+                        // Delete source book
+                        int deleted_book = deleteBook(ISBN);
+                        if (deleted_book > 0)  printf("%i book deleted\n");
+                        else    printf("No book found!\n");
+                        // Delete all copies of source book
+                        int deleted_book_copies = deleteBookCopies(ISBN);
+                        if (deleted_book_copies > 0)    printf("%i book copies deleted\n");
+                        else    printf("No book copies found!\n");
+                        free(ISBN);
+                        break;
+
+                    default:
+                        break;
+                }
+            case 2: // USERS
+                break;
+            case 3: // TRANSACTIONS
+                break;
+            case 4: // LOG OUT
+                free(login_name);
+                free(password);
+                logout();
+            default:
+                break;
+        }
+    } // END OF LIBRARIAN
+
+    /*// SAVE TO FILE BEFORE EXIT
+    saveBooks(book_file, library);
+    saveBookCopies(book_copy_file, inventory);
+    saveUsers(user_file, user_list_head);
+    saveTransactions(transaction_file, transaction_list);*/
+
+    printBooks(library);
+    printBookCopies(inventory);
     return 0;
 }
