@@ -3,7 +3,7 @@
 
 enum credential { no_credential, author, customer, librarian };
 
-enum user_status { no_user_status, inactive_user, active_user, delinquent };
+enum user_status { no_user_status, inactive_user, active_user, delinquent, deleted_user }; // add deleted status for soft delete
 
 typedef struct User
 {
@@ -25,6 +25,7 @@ void printUser(User* head);
 User* searchUsers(char* keyword, User* head);
 User* filterByUserID(int input_ID, User* head);
 User* filterByFullName(char* input_full_name, User* head);
+User* filterByUserTitle(enum credential input_title, User* head);
 User* filterUsers(User* parameters, User* head);
 
 int countUsers(User* head);

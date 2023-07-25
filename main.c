@@ -24,38 +24,15 @@ int main()
     loadTransactions(transaction_record_head, &transaction_list);
 
     printf("Welcome to the Library Management System!\n");
-
-/*    char* keyword = malloc(50 * sizeof(char));
-    printf("Enter keyword: ");
-    fgets(keyword, 50, stdin);
-    size_t len = strlen(keyword);
-    if (len > 0 && keyword[len - 1] == '\n')  keyword[len - 1] = '\0';
-
-    Book* searched_result = searchBooks(keyword, library);
-    if (!searched_result)   printf("No result found\n");
-    else {
-        printf("%i book(s) found\n---------\n", countBooks(searched_result));
-        printBooks(searched_result);
-    }
-
-    Book* filterBy = createBook(NULL, NULL, 1234, 0, NULL, 0, 0, 0, 0);
-    Book* filtered_result = filterBooks(filterBy, library);
-    if (!filtered_result)   printf("No result found\n");
-    else {
-        printf("%i book(s) found\n---------\n", countBooks(filtered_result));
-        printBooks(filtered_result);
-    }*/
-
-
-
-    char* login_name;
+    // AUTHENTICATION
+    char* log_in_name;
     char* password;
     int attempt = 0;
     User* current_user;
     do {
-        login_name = getLoginName();
+        log_in_name = getLoginName();
         password = getPassword();
-        current_user = login(login_name, password);
+        current_user = login(log_in_name, password);
         attempt++;
     } while (!current_user && attempt < 3);
 
@@ -63,10 +40,10 @@ int main()
         printf("Multiple failed login attempts detected. Please contact admin\n");
         exit(0);
     }
-
+    // LIBRARIAN
     if (current_user->title == librarian) {
         int category;
-        printf("***** Librarian Portal *****\n");
+        printf("\033[1m" "***** LIBRARIAN PORTAL *****\n" "\033[0m"); // Bold title
         printf("1. BOOKS\t2. USERS\t3. TRANSACTIONS\t 4. LOG OUT\n");
         scanf("%i", &category);
         switch(category) {
@@ -77,19 +54,23 @@ int main()
                 scanf("%i", &book_choice);
                 switch(book_choice) {
                     case 1:
-                        printf("\033[1m" "LIBRARY\n" "\033[0m"); // Bold title
+                        printf("\033[1m" "LIBRARY\n" "\033[0m");
                         printBooks(library);
                         break;
                     case 2:
                         printf("Input your keyword: ");
                         char* keyword = malloc(100);
-                        scanf("%s", keyword);
+                        scanf(" %[^\n]", keyword);
                         Book* searched_books = searchBooks(keyword, library);
-                        printBooks(searched_books);
+                        if (searched_books) {
+                            printf("%i matching book(s) found!\n-----------\n", countBooks(searched_books));
+                            printBooks(searched_books);
+                        } else  printf("No matching book found\n");
                         freeBookList(searched_books);
                         free(keyword);
                         break;
-                    case 3: {
+                    case 3:
+                        printf("Select 0 for No\t Select 1 for Yes\n");
                         char *ISBN = malloc(20);
                         char *title = malloc(100);
                         char *author_name = malloc(50);
@@ -97,7 +78,6 @@ int main()
                         int author_id = 0, tag_count = 0, total_count = 0, in_stock_count = 0, likes = 0;
                         enum book_tag *tags = NULL;
                         int selection;
-                        printf("Select 0 for No\t Select 1 for Yes\n");
                         printf("Filtered by ISBN? ");
                         scanf("%i", &selection);
                         if (selection == 1) {
@@ -125,7 +105,7 @@ int main()
                         printf("Filtered by Book Status? ");
                         scanf("%i", &selection);
                         if (selection == 1) {
-                            printf("Select 1 for inactive\tSelect 2 for active\n");
+                            printf("1. Inactive\t2. Active\t3. Deleted\n");
                             scanf("%i", &status);
                         }
                         printf("Filtered by Book Tags? ");
@@ -169,31 +149,159 @@ int main()
                         else    printf("No matching book found\n");
                         freeBookList(filtered_books);
                         break;
-                    } // END OF CHOICE 3
                     case 4:
                         printf("Enter ISBN of book to be deleted: ");
-                        char* ISBN = malloc(20);
-                        scanf("%s", ISBN);
+                        char* ISBN_to_delete = malloc(20);
+                        scanf("%s", ISBN_to_delete);
                         // Delete source book
-                        int deleted_book = deleteBook(ISBN);
+                        int deleted_book = deleteBook(ISBN_to_delete);
                         if (deleted_book > 0)  printf("%i book deleted\n", deleted_book);
                         else    printf("No book found!\n");
                         // Delete all copies of source book
-                        int deleted_book_copies = deleteBookCopies(ISBN);
+                        int deleted_book_copies = deleteBookCopies(ISBN_to_delete);
                         if (deleted_book_copies > 0)    printf("%i book copies deleted\n", deleted_book_copies);
                         else    printf("No book copies found!\n");
-                        free(ISBN);
+                        free(ISBN_to_delete);
                         break;
                     default:
                         break;
                 }
                 break; // END OF BOOKS
             case 2: // USERS
+                printf("1. View all authors\t2. View all customers\n"
+                       "3. Search users by keyword\t4. Search users by filters\n"
+                       "5. Create new user\t6. Delete user\n");
+                int user_choice;
+                scanf("%i", &user_choice);
+                switch(user_choice) {
+                    case 1:
+                        printf("\033[1m" "AUTHOR LIST\n" "\033[0m");
+                        User* authors = filterByUserTitle(author, user_list_head);
+                        if (authors) {
+                            printf("%i authors found\n-----------\n", countUsers(authors));
+                            printUser(authors);
+                        }
+                        else    printf("No author found!\n");
+                        break;
+                    case 2:
+                        printf("\033[1m" "CUSTOMER LIST\n" "\033[0m");
+                        User* customers = filterByUserTitle(customer, user_list_head);
+                        if (customers) {
+                            printf("%i customers found\n-----------\n", countUsers(customers));
+                            printUser(customers);
+                        }
+                        else    printf("No customer found!\n");
+                        break;
+                    case 3:
+                        printf("Input your keyword: ");
+                        char* keyword = malloc(100);
+                        scanf(" %[^\n]", keyword);
+                        printf("You have entered: %s\n", keyword);
+                        User* searched_users = searchUsers(keyword, user_list_head);
+                        if (searched_users) {
+                            printf("%i user(s) found\n", countUsers(searched_users));
+                            printUser(searched_users);
+                        }
+                        else    printf("No user found!\n");
+                        free(keyword);
+                        break;
+                    case 4:
+                        printf("Select 0 for No\t Select 1 for Yes\n");
+                        int user_id = 0;
+                        char* full_name = malloc(100);
+                        char* login_name = malloc(50);
+                        char* email = malloc(100);
+                        enum credential title = 0;
+                        enum user_status status = 0;
+                        int selection;
+                        printf("Filter by user ID? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("Input user ID: ");
+                            scanf("%i", &user_id);
+                            printf("You have entered: %i\n", user_id);
+                        }
+                        printf("Filter by full name? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("Input user's full name: ");
+                            scanf(" %[^\n]", full_name);
+                            printf("You have entered: %s\n", full_name);
+                        } else  full_name = NULL;
+                        printf("Filter by login name? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("Input user's login name: ");
+                            scanf(" %[^\n]", login_name);
+                            printf("You have entered: %s\n", login_name);
+                        } else  login_name = NULL;
+                        printf("Filter by email? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("Input user's email: ");
+                            scanf(" %[^\n]", email);
+                            printf("You have entered: %s\n", email);
+                        } else  email = NULL;
+                        printf("Filter by title? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("1. Author\t2. Customer\t3. Librarian\n");
+                            printf("Input user's title: ");
+                            scanf("%i", &title);
+                            printf("You have entered: %i\n", title);
+                        }
+                        printf("Filter by status? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("1. Inactive\t2. Active\t3. Delinquent\t4. Deleted\n");
+                            printf("Input user's title: ");
+                            scanf("%i", &status);
+                            printf("You have entered: %i\n", status);
+                        }
+                        User* filterBy = createUser(user_id, full_name, login_name, NULL, email, title, status);
+                        printUser(filterBy);
+                        User* filtered_users = filterUsers(filterBy, user_list_head);
+                        if (filtered_users) {
+                            printf("%i user(s) found\n", countUsers(filtered_users));
+                            printUser(filtered_users);
+                        }
+                        else    printf("No user found!\n");
+                        freeUserList(filtered_users);
+                        break;
+                    case 5:
+                        printf("Enter new user's information\n");
+                        int new_user_id = 0;
+                        char* new_full_name = malloc(100);
+                        char* new_login_name = malloc(50);
+                        char* new_email = malloc(100);
+                        char* new_password = malloc(50);
+                        enum credential new_title = 0;
+                        printf("Enter user ID: ");
+                        scanf("%i", &new_user_id);
+                        printf("Enter user's full name: ");
+                        scanf(" %[^\n]", new_full_name);
+                        printf("Enter user's login name: ");
+                        scanf(" %[^\n]", new_login_name);
+                        printf("Enter user's email: ");
+                        scanf(" %[^\n]", new_email);
+                        printf("Enter user's password: ");
+                        scanf(" %[^\n]", new_password);
+                        printf("1. Author\t2. Customer\t3. Librarian\n"
+                               "Enter user's title: ");
+                        scanf("%i", &new_title);
+                        User* new_user = createUser(new_user_id, new_full_name, new_login_name, new_password, new_email, new_title, active_user);
+                        insertUser(new_user, &user_list_head);
+                        printf("New user added!\n");
+                        printUser(new_user);
+                        break;
+                    case 6:
+                        break;
+                }
                 break; // END OF USERS
             case 3: // TRANSACTIONS
                 break; // END OF TRANSACTIONS
             case 4: // LOG OUT
-                free(login_name);
+                free(log_in_name);
                 free(password);
                 logout();
             default:

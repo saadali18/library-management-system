@@ -1,7 +1,7 @@
 #ifndef BOOKS_H
 #define BOOKS_H
 
-enum book_status { no_book_status, inactive, active, deleted }; // TODO: add deleted status for soft delete
+enum book_status { no_book_status, inactive, active, deleted }; // add deleted status for soft delete
 
 enum book_tag { no_tag, biography, fantasy, fiction, mystery, romance, scifi, thriller, young_adult };
 

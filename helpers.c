@@ -19,7 +19,7 @@ char* formatBookTag(int tag)
 
 char* formatUserCred(int title)
 {
-    char* cred[] = { "none", "author", "customer", "librarian" };
+    char* cred[] = { "none", "author", "customer", "librarian", "deleted" };
     return cred[title];
 }
 
