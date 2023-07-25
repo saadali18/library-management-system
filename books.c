@@ -6,9 +6,11 @@
 #include "books.h"
 #include "transactions.h"
 
+// GLOBAL HEAD VARIABLES
 Book* library = NULL;
 BookCopy* inventory = NULL;
 
+// BOOKS
 Book* createBook(char* ISBN, char* title, int author_id, enum book_status status, enum book_tag* tags, int tag_count, int total_count, int in_stock_count, int likes)
 {
     Book* book = malloc(sizeof(Book));
@@ -192,7 +194,7 @@ Book* filterByAuthorID(int input_author_id, Book* head)
     Book* current = head;
     while (current)
     {
-        if (current->author_id >= input_author_id)
+        if (current->author_id == input_author_id)
             copyBookToResult(current, &filtered_result);
         current = current->next;
     }
@@ -246,6 +248,51 @@ Book* filterBooks(Book* parameters, Book* head){
     return filtered_books;
 }
 
+int deleteBook(char* input_ISBN)     // Delete source book
+{
+    int deleted_book_count = 0;
+    Book* current =  library;
+    if (!current) {
+        printf("Library is empty\n");
+        return 0;
+    }
+
+    while (current) {
+        if (isMatch(current->ISBN, input_ISBN)) {
+            printf("Matching book title: %s\n", current->title);
+            current->status = deleted;
+            current->total_count = current->in_stock_count = 0;
+            deleted_book_count++;
+        }
+        current = current->next;
+    }
+    return deleted_book_count;
+}
+
+int countBooks(Book* head)
+{
+    int count = 0;
+    Book* current = head;
+    while (current)
+    {
+        count++;
+        current = current->next;
+    }
+    return count;
+}
+
+void freeBookList(Book* head)
+{
+    while (head)
+    {
+        Book* temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// BOOK COPIES
+
 BookCopy* createBookCopy(int book_uid, char* ISBN, enum book_status status)
 {
     BookCopy* book_copy = malloc(sizeof(BookCopy));
@@ -274,18 +321,6 @@ void insertBookCopy(BookCopy* book_copy, BookCopy** head)
     current->next = book_copy;
 }
 
-BookCopy* getBookCopy(Book* book)
-{
-    BookCopy* current = inventory;
-    while (current)
-    {
-        if (!strcmp(current->ISBN, book->ISBN) && current->status == active)
-            break;
-        current = current->next;
-    }
-    return current;
-}
-
 void printBookCopies(BookCopy* head)
 {
     BookCopy* copy = head;
@@ -299,16 +334,16 @@ void printBookCopies(BookCopy* head)
     }
 }
 
-int countBooks(Book* head)
+BookCopy* getBookCopy(Book* book)
 {
-    int count = 0;
-    Book* current = head;
+    BookCopy* current = inventory;
     while (current)
     {
-        count++;
+        if (!strcmp(current->ISBN, book->ISBN) && current->status == active)
+            break;
         current = current->next;
     }
-    return count;
+    return current;
 }
 
 int countBookCopies(BookCopy* head)
@@ -323,71 +358,23 @@ int countBookCopies(BookCopy* head)
     return count;
 }
 
-void freeBookList(Book* head)
-{
-    while (head)
-    {
-        Book* temp = head;
-        head = head->next;
-        free(temp);
-    }
-}
-
-int deleteBook(char* input_ISBN)     // Delete source book
-{
-    Book* previous = NULL;
-    Book* current = library;
-
-    if (!current) {
-        printf("Library is empty.\n");
-        return 0;
-    }
-
-    while (current) {
-        if (isMatch(current->ISBN, input_ISBN)) {
-            if (!previous) { // if match @ head
-                library = current->next;
-            } else {
-                previous->next = current->next;
-            }
-            free(current);
-            return 1; // Book found and deleted, return because there should only 1 book match
-        }
-        previous = current;
-        current = current->next;
-    }
-    return 0; // Not found
-}
-
 int deleteBookCopies(char* input_ISBN)
 {
-    int deleted_book_copies_count = 0;
-    BookCopy* previous = NULL;
+    int deleted_booK_copy_count = 0;
     BookCopy* current = inventory;
-
     if (!current) {
-        printf("Inventory is empty.\n");
+        printf("Inventory is empty\n");
         return 0;
     }
-    // Delete all matching book copies
+
     while (current) {
         if (isMatch(current->ISBN, input_ISBN)) {
-            if (!previous) { // If match @ head
-                inventory = current->next;
-                free(current);
-                current = inventory;
-            } else {
-                previous-> next = current->next;
-                free(current);
-                current = previous->next;
-            }
-            deleted_book_copies_count++;
-        } else {
-            previous = current;
-            current = current->next;
+            current->status = deleted;
+            deleted_booK_copy_count++;
         }
+        current = current->next;
     }
-    return deleted_book_copies_count;
+    return deleted_booK_copy_count;
 }
 
 

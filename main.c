@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "users.h"
 #include "transactions.h"
 #include "books.h"
@@ -16,24 +17,52 @@ int main()
     readRecord(book_copy_file, &book_copy_record_head);
     loadBookCopies(book_copy_record_head, &inventory);
 
-
     readRecord(user_file, &user_record_head);
     loadUsers(user_record_head, &user_list_head);
-
 
     readRecord(transaction_file, &transaction_record_head);
     loadTransactions(transaction_record_head, &transaction_list);
 
-
     printf("Welcome to the Library Management System!\n");
+
+/*    char* keyword = malloc(50 * sizeof(char));
+    printf("Enter keyword: ");
+    fgets(keyword, 50, stdin);
+    size_t len = strlen(keyword);
+    if (len > 0 && keyword[len - 1] == '\n')  keyword[len - 1] = '\0';
+
+    Book* searched_result = searchBooks(keyword, library);
+    if (!searched_result)   printf("No result found\n");
+    else {
+        printf("%i book(s) found\n---------\n", countBooks(searched_result));
+        printBooks(searched_result);
+    }
+
+    Book* filterBy = createBook(NULL, NULL, 1234, 0, NULL, 0, 0, 0, 0);
+    Book* filtered_result = filterBooks(filterBy, library);
+    if (!filtered_result)   printf("No result found\n");
+    else {
+        printf("%i book(s) found\n---------\n", countBooks(filtered_result));
+        printBooks(filtered_result);
+    }*/
+
+
+
     char* login_name;
     char* password;
+    int attempt = 0;
     User* current_user;
     do {
         login_name = getLoginName();
         password = getPassword();
         current_user = login(login_name, password);
-    } while (!current_user);
+        attempt++;
+    } while (!current_user && attempt < 3);
+
+    if (attempt == 3) {
+        printf("Multiple failed login attempts detected. Please contact admin\n");
+        exit(0);
+    }
 
     if (current_user->title == librarian) {
         int category;
@@ -44,10 +73,11 @@ int main()
             case 1: // BOOKS
                 printf("1. View all books\t2. Search books by keywords\n"
                        "3. Search books by filters\t4. Delete book\n");
-                int choice;
-                scanf("%i", &choice);
-                switch(choice) {
+                int book_choice;
+                scanf("%i", &book_choice);
+                switch(book_choice) {
                     case 1:
+                        printf("\033[1m" "LIBRARY\n" "\033[0m"); // Bold title
                         printBooks(library);
                         break;
                     case 2:
@@ -72,23 +102,26 @@ int main()
                         scanf("%i", &selection);
                         if (selection == 1) {
                             printf("Input ISBN: ");
-                            scanf("%s", ISBN);
-                        }
+                            scanf(" %[^\n]", ISBN);
+                            printf("You entered: %s\n\n", ISBN);
+                        } else  ISBN = NULL;
                         printf("Filtered by Title? ");
                         scanf("%i", &selection);
                         if (selection == 1) {
                             printf("Input Title: ");
-                            scanf("%s", title);
-                        }
+                            scanf(" %[^\n]", title);
+                            printf("You entered: %s\n\n", title);
+                        } else  title = NULL;
                         printf("Filtered by Author's name? ");
                         scanf("%i", &selection);
                         if (selection == 1) {
                             printf("Input Author's name: ");
-                            scanf("%s", author_name);
+                            scanf(" %[^\n]", author_name);
+                            printf("You entered: %s\n\n", author_name);
                             User *filtered_author = filterByFullName(author_name, user_list_head);
                             author_id = filtered_author->user_id;
                             free(author_name);
-                        }
+                        } else author_id = 0;
                         printf("Filtered by Book Status? ");
                         scanf("%i", &selection);
                         if (selection == 1) {
@@ -104,6 +137,7 @@ int main()
                             for (int i = 0; i < tag_count; i++) {
                                 printf("1. biography\t2. fantasy\t3. fiction\t4. mystery\n"
                                        "5. romance\t6. scifi\t7. thriller\t8. young_adult\n");
+                                printf("Tag #%i: ", i + 1);
                                 scanf("%i", &tags[i]);
                             }
                         }
@@ -125,42 +159,46 @@ int main()
                             printf("Input likes: ");
                             scanf("%i", &likes);
                         }
-                        Book *filterBy = createBook(ISBN, title, author_id, status, tags, tag_count, total_count,
-                                                    in_stock_count, likes);
+                        Book *filterBy = createBook(ISBN, title, author_id, status, tags, tag_count, total_count, in_stock_count, likes);
                         Book *filtered_books = filterBooks(filterBy, library);
-                        printBooks(filtered_books);
+                        if (filtered_books)
+                        {
+                            printf("%i matching book(s) found!\n-----------\n", countBooks(filtered_books));
+                            printBooks(filtered_books);
+                        }
+                        else    printf("No matching book found\n");
                         freeBookList(filtered_books);
                         break;
-                    }
+                    } // END OF CHOICE 3
                     case 4:
                         printf("Enter ISBN of book to be deleted: ");
                         char* ISBN = malloc(20);
                         scanf("%s", ISBN);
                         // Delete source book
                         int deleted_book = deleteBook(ISBN);
-                        if (deleted_book > 0)  printf("%i book deleted\n");
+                        if (deleted_book > 0)  printf("%i book deleted\n", deleted_book);
                         else    printf("No book found!\n");
                         // Delete all copies of source book
                         int deleted_book_copies = deleteBookCopies(ISBN);
-                        if (deleted_book_copies > 0)    printf("%i book copies deleted\n");
+                        if (deleted_book_copies > 0)    printf("%i book copies deleted\n", deleted_book_copies);
                         else    printf("No book copies found!\n");
                         free(ISBN);
                         break;
-
                     default:
                         break;
                 }
+                break; // END OF BOOKS
             case 2: // USERS
-                break;
+                break; // END OF USERS
             case 3: // TRANSACTIONS
-                break;
+                break; // END OF TRANSACTIONS
             case 4: // LOG OUT
                 free(login_name);
                 free(password);
                 logout();
             default:
                 break;
-        }
+        } // END OF SWITCH CATEGORY
     } // END OF LIBRARIAN
 
     /*// SAVE TO FILE BEFORE EXIT
@@ -169,7 +207,7 @@ int main()
     saveUsers(user_file, user_list_head);
     saveTransactions(transaction_file, transaction_list);*/
 
-    printBooks(library);
-    printBookCopies(inventory);
+    /*printBooks(library);
+    printBookCopies(inventory);*/
     return 0;
 }

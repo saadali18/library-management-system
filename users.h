@@ -27,6 +27,7 @@ User* filterByUserID(int input_ID, User* head);
 User* filterByFullName(char* input_full_name, User* head);
 User* filterUsers(User* parameters, User* head);
 
+int countUsers(User* head);
 void freeUserList(User* head);
 
 

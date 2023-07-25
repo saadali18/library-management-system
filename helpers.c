@@ -7,7 +7,7 @@
 
 char* formatBookStatus(int status)
 {
-    char* book_s[] = { "none", "inactive", "active" };
+    char* book_s[] = { "none", "inactive", "active", "deleted" };
     return book_s[status];
 }
 
