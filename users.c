@@ -179,6 +179,21 @@ User* filterUsers(User* parameters, User* head)
     return filtered_users;
 }
 
+int deleteUser(int user_id)
+{
+    int deleted_user_count = 0;
+    User* current = user_list_head;
+    while (current) {
+        if (current->user_id == user_id) {
+            printf("User: %s\n", current->full_name);
+            current->status = deleted_user;
+            deleted_user_count++;
+        }
+        current = current->next;
+    }
+    return deleted_user_count;
+}
+
 int countUsers(User* head)
 {
     int count = 0;

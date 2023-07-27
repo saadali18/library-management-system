@@ -58,7 +58,7 @@ int main()
                         printBooks(library);
                         break;
                     case 2:
-                        printf("Input your keyword: ");
+                        printf("Enter search keyword: ");
                         char* keyword = malloc(100);
                         scanf(" %[^\n]", keyword);
                         Book* searched_books = searchBooks(keyword, library);
@@ -70,7 +70,7 @@ int main()
                         free(keyword);
                         break;
                     case 3:
-                        printf("Select 0 for No\t Select 1 for Yes\n");
+                        printf("0. No\t1. Yes\n");
                         char *ISBN = malloc(20);
                         char *title = malloc(100);
                         char *author_name = malloc(50);
@@ -193,7 +193,7 @@ int main()
                         else    printf("No customer found!\n");
                         break;
                     case 3:
-                        printf("Input your keyword: ");
+                        printf("Enter search keyword: ");
                         char* keyword = malloc(100);
                         scanf(" %[^\n]", keyword);
                         printf("You have entered: %s\n", keyword);
@@ -206,7 +206,7 @@ int main()
                         free(keyword);
                         break;
                     case 4:
-                        printf("Select 0 for No\t Select 1 for Yes\n");
+                        printf("0. No\t1. Yes\n");
                         int user_id = 0;
                         char* full_name = malloc(100);
                         char* login_name = malloc(50);
@@ -295,10 +295,111 @@ int main()
                         printUser(new_user);
                         break;
                     case 6:
+                        printf("Enter user ID to be deleted: ");
+                        int id = 0;
+                        scanf("%i", &id);
+                        int deleted_user = deleteUser(id);
+                        if (deleted_user > 0)  printf("%i user deleted!\n", deleted_user);
+                        else    printf("No user found!\n");
                         break;
                 }
                 break; // END OF USERS
             case 3: // TRANSACTIONS
+                printf("1. View all transactions\t2. Search transactions by keyword\n"
+                       "3. Search transactions by filters\n");
+                int transaction_choice;
+                scanf("%i", &transaction_choice);
+                switch (transaction_choice) {
+                    case 1:
+                        printf("\033[1m" "TRANSACTION LIST\n" "\033[0m");
+                        printTransactions(transaction_list);
+                        break;
+                    case 2:
+                        printf("Enter search keyword: ");
+                        char* keyword = malloc(100);
+                        scanf(" %[^\n]", keyword);
+                        BookTransaction* searched_transactions = searchTransaction(keyword, transaction_list, user_list_head);
+                        if (searched_transactions) {
+                            printf("%i transaction(s) found!\n-----------------\n", countTransactions(searched_transactions));
+                            printTransactions(searched_transactions);
+                        } else  printf("No transaction found!\n");
+                        free(keyword);
+                        freeTransactionList(searched_transactions);
+                        break;
+                    case 3:
+                        printf("0. No\t1. Yes\n");
+                        int book_uid = 0;
+                        Date* check_out_date = malloc(sizeof(Date));
+                        Date* due_date = malloc(sizeof(Date));
+                        Date* return_date = malloc(sizeof(Date));
+                        int user_id = 0;
+                        enum transaction_status status = 0;
+                        int selection;
+                        printf("Filter by book unique ID? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("Enter book unique ID: ");
+                            scanf("%i", &book_uid);
+                            printf("You enter: %i\n", book_uid);
+                        }
+                        printf("Filter by transaction status? ");
+                        scanf("%i", &selection);
+                        printf("Filter by Check Out Date? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf(" Enter month: ");
+                            scanf("%i", &check_out_date->month);
+                            printf(" Enter day: ");
+                            scanf("%i", &check_out_date->day);
+                            printf(" Enter year: ");
+                            scanf("%i", &check_out_date->year);
+                            printf("You enter: %i/%i/%i\n", check_out_date->month, check_out_date->day, check_out_date->year);
+                        } else  check_out_date = NULL;
+                        printf("Filter by Due Date? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf(" Enter month: ");
+                            scanf("%i", &due_date->month);
+                            printf(" Enter day: ");
+                            scanf("%i", &due_date->day);
+                            printf(" Enter year: ");
+                            scanf("%i", &due_date->year);
+                            printf("You enter: %i/%i/%i\n", due_date->month, due_date->day, due_date->year);
+                        } else  due_date = NULL;
+                        printf("Filter by Return Date? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf(" Enter month: ");
+                            scanf("%i", &return_date->month);
+                            printf(" Enter day: ");
+                            scanf("%i", &return_date->day);
+                            printf(" Enter year: ");
+                            scanf("%i", &return_date->year);
+                            printf("You enter: %i/%i/%i\n", return_date->month, return_date->day, return_date->year);
+                        } else  return_date = NULL;
+                        printf("Filter by user ID? ");
+                        scanf("%i", &selection);
+                        if (selection == 1) {
+                            printf("Enter user ID: ");
+                            scanf("%i", &user_id);
+                            printf("You enter: %i\n", user_id);
+                        }
+                        if (selection == 1) {
+                            printf("1. Open\t2. Close\t3. Past due\nEnter transaction status: ");
+                            scanf("%i", &status);
+                            printf("You enter: %i\n", status);
+                        }
+                        BookTransaction* filterBy = createTransaction(book_uid, check_out_date, due_date, return_date, user_id, status);
+                        printTransactions(filterBy);
+                        BookTransaction* filtered_transactions = filterTransactions(filterBy, transaction_list);
+                        if (filtered_transactions) {
+                            printf("%i transaction(s) found\n---------------------\n", countTransactions(filtered_transactions));
+                            printTransactions(filtered_transactions);
+                        }
+                        else    printf("No transaction found!\n");
+                        freeTransactionList(filtered_transactions);
+                        break;
+                }
                 break; // END OF TRANSACTIONS
             case 4: // LOG OUT
                 free(log_in_name);

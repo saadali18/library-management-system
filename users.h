@@ -28,6 +28,7 @@ User* filterByFullName(char* input_full_name, User* head);
 User* filterByUserTitle(enum credential input_title, User* head);
 User* filterUsers(User* parameters, User* head);
 
+int deleteUser(int user_id);
 int countUsers(User* head);
 void freeUserList(User* head);
 
