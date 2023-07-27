@@ -410,13 +410,11 @@ int main()
         } // END OF SWITCH CATEGORY
     } // END OF LIBRARIAN
 
-    /*// SAVE TO FILE BEFORE EXIT
+    // SAVE TO FILE BEFORE EXIT
     saveBooks(book_file, library);
     saveBookCopies(book_copy_file, inventory);
     saveUsers(user_file, user_list_head);
-    saveTransactions(transaction_file, transaction_list);*/
+    saveTransactions(transaction_file, transaction_list);
 
-    /*printBooks(library);
-    printBookCopies(inventory);*/
     return 0;
 }
