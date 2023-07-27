@@ -22,7 +22,7 @@ char* getPassword()
     return password;
 }
 
-bool login(char* login_name, char* password)
+User* login(char* login_name, char* password)
 {
     User* current = user_list_head;
     while (current)
@@ -30,16 +30,16 @@ bool login(char* login_name, char* password)
         if (!strcmp(current->login_name, login_name) && !strcmp(current->password, password)) {
             if (current->status == active_user) {
                 printf("You have successfully logged in!\n");
-                return true;
+                return current;
             } else {
                 printf("You're not an active user. Please see admin.\n");
-                return false;
+                return NULL;
             }
         }
         current = current->next;
     }
     printf("Incorrect login and/or password. Please try again.\n");
-    return false;
+    return NULL;
 }
 
 void logout()
