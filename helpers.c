@@ -7,7 +7,7 @@
 
 char* formatBookStatus(int status)
 {
-    char* book_s[] = { "none", "inactive", "active" };
+    char* book_s[] = { "none", "inactive", "active", "deleted" };
     return book_s[status];
 }
 
@@ -19,7 +19,7 @@ char* formatBookTag(int tag)
 
 char* formatUserCred(int title)
 {
-    char* cred[] = { "none", "author", "customer", "librarian" };
+    char* cred[] = { "none", "author", "customer", "librarian", "deleted" };
     return cred[title];
 }
 

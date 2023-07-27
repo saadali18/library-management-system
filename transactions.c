@@ -7,7 +7,7 @@
 
 BookTransaction* transaction_list = NULL;
 
-BookTransaction* createTransaction(int book_uid, Date* check_out_date, int user_id, enum transaction_status status)
+BookTransaction* createTransaction(int book_uid, Date* check_out_date, Date* due_date, Date* return_date, int user_id, enum transaction_status status)
 {
     BookTransaction* transaction = malloc(sizeof(BookTransaction));
     if (!transaction)
@@ -18,8 +18,9 @@ BookTransaction* createTransaction(int book_uid, Date* check_out_date, int user_
 
     transaction->book_uid = book_uid;
     transaction->check_out_date = check_out_date;
-    transaction->due_date = addDaysToDates(check_out_date, rental_days);
-    transaction->return_date = NULL;
+    if (check_out_date)    transaction->due_date = addDaysToDates(check_out_date, rental_days);
+    else    transaction->due_date = due_date; // for filter variables and function
+    transaction->return_date = return_date;
     transaction->user_id = user_id;
     transaction->status = status;
     transaction->next = NULL;
@@ -42,10 +43,34 @@ void insertTransaction(BookTransaction* transaction, BookTransaction** head)
 
 void copyTransactionToResult(BookTransaction* transaction, BookTransaction** result_list)
 {
-    BookTransaction* result = createTransaction(transaction->book_uid, transaction->check_out_date, transaction->user_id, transaction->status);
-    result->return_date = transaction->return_date;
+    BookTransaction* result = createTransaction(transaction->book_uid, transaction->check_out_date, transaction->due_date,
+                                                transaction->return_date, transaction->user_id, transaction->status);
     insertTransaction(result, result_list);
 }
+
+void printTransactions(BookTransaction* head)
+{
+    BookTransaction* transaction = head;
+    while (transaction)
+    {
+        printf("Book UID: %02i\n", transaction->book_uid);
+        if (transaction->check_out_date)
+            printf("Check-out date: %i/%i/%i\n", transaction->check_out_date->month, transaction->check_out_date->day, transaction->check_out_date->year);
+        else printf("Check-out-date: none\n");
+        if (transaction->due_date)
+            printf("Due date: %i/%i/%i\n", transaction->due_date->month, transaction->due_date->day, transaction->due_date->year);
+        else printf("Due date: none\n");
+        printf("Return date: ");
+        if (transaction->return_date)
+            printf("%i/%i/%i\n", transaction->return_date->month, transaction->return_date->day, transaction->return_date->year);
+        else printf("pending\n");
+        printf("User ID: %i\n", transaction->user_id);
+        printf("Transaction status: %s\n", formatTransactionStatus(transaction->status));
+        printf("--------------------------\n");
+        transaction = transaction->next;
+    }
+}
+
 // Linker function
 BookCopy* findBookCopy(int book_uid)
 {
@@ -106,7 +131,7 @@ void rentBook(Book* book, User* user)
     BookCopy* rented_copy = getBookCopy(book);
 
     // Create and insert transaction
-    BookTransaction* rental = createTransaction(rented_copy->book_uid, getTodaysDate(), user->user_id, open);
+    BookTransaction* rental = createTransaction(rented_copy->book_uid, getTodaysDate(), NULL, NULL, user->user_id, open);
     insertTransaction(rental, &transaction_list);
 
     // Print transaction status
@@ -154,25 +179,6 @@ void returnBook(int book_uid)
     printf("Thank you for choosing LMS!\n--------------------\n");
 }
 
-void printTransactions(BookTransaction* head)
-{
-    BookTransaction* transaction = head;
-    while (transaction)
-    {
-        printf("Book UID: %02i\n", transaction->book_uid);
-        printf("Check-out date: %i/%i/%i\n", transaction->check_out_date->month, transaction->check_out_date->day, transaction->check_out_date->year);
-        printf("Due date: %i/%i/%i\n", transaction->due_date->month, transaction->due_date->day, transaction->due_date->year);
-        printf("Return date: ");
-        if (transaction->return_date)
-            printf("%i/%i/%i\n", transaction->return_date->month, transaction->return_date->day, transaction->return_date->year);
-        else printf("pending\n");
-        printf("User ID: %i\n", transaction->user_id);
-        printf("Transaction status: %s\n", formatTransactionStatus(transaction->status));
-        printf("--------------------------\n");
-        transaction = transaction->next;
-    }
-}
-
 BookTransaction* searchTransaction(char* keyword, BookTransaction* transaction_head, User* user_head)
 {
     BookTransaction* search_result = NULL;
@@ -188,7 +194,7 @@ BookTransaction* searchTransaction(char* keyword, BookTransaction* transaction_h
         User* user = findUserFromID(current->user_id);
 
         if (isContain(toString(current->book_uid), keyword) || isContain(user->full_name, keyword) || \
-        isContain(formatBookStatus(current->status), keyword))
+        isContain(formatTransactionStatus(current->status), keyword))
         {
             copyTransactionToResult(current, &search_result);
         }
@@ -216,8 +222,8 @@ BookTransaction* filterByCheckoutDate(Date* input, BookTransaction** head)
     BookTransaction* current = *head;
     while (current)
     {
-        if (current->check_out_date->year == input->year && current->check_out_date->month == input->month \
-			&& current->check_out_date->day == input->day)		copyTransactionToResult(current, &filtered_result);
+        if (compareDate(current->check_out_date, input))
+            copyTransactionToResult(current, &filtered_result);
         current = current->next;
     }
     return filtered_result;
@@ -262,6 +268,19 @@ BookTransaction* filterTransactionByUserID(int user_id, BookTransaction** head)
     return filtered_result;
 }
 
+BookTransaction* filterTransactionByStatus(enum transaction_status status, BookTransaction** head)
+{
+    BookTransaction* filtered_result = NULL;
+    BookTransaction* current = *head;
+    while (current)
+    {
+        if (current->status == status)
+            copyTransactionToResult(current, &filtered_result);
+        current = current->next;
+    }
+    return filtered_result;
+}
+
 BookTransaction* filterTransactions(BookTransaction* parameters, BookTransaction* head)
 {
     BookTransaction* filtered_transactions = head;
@@ -271,6 +290,7 @@ BookTransaction* filterTransactions(BookTransaction* parameters, BookTransaction
     if (parameters->due_date)	filtered_transactions = filterByDueDate(parameters->due_date, &filtered_transactions);
     if (parameters->return_date)	filtered_transactions = filterByReturnDate(parameters->return_date, &filtered_transactions);
     if (parameters->user_id > 0)	filtered_transactions = filterTransactionByUserID(parameters->user_id, &filtered_transactions);
+    if (parameters->status > 0)     filtered_transactions = filterTransactionByStatus(parameters->status, &filtered_transactions);
 
     return filtered_transactions;
 }

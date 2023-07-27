@@ -5,7 +5,7 @@
 
 char* getLoginName();
 char* getPassword();
-bool login(char* login_name, char* password);
+User* login(char* login_name, char* password);
 void logout();
 
 #endif
