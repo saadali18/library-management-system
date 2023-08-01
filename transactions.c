@@ -63,7 +63,7 @@ void printTransactions(BookTransaction* head)
         printf("Return date: ");
         if (transaction->return_date)
             printf("%i/%i/%i\n", transaction->return_date->month, transaction->return_date->day, transaction->return_date->year);
-        else printf("pending\n");
+        else printf("none\n");
         printf("User ID: %i\n", transaction->user_id);
         printf("Transaction status: %s\n", formatTransactionStatus(transaction->status));
         printf("--------------------------\n");
@@ -121,9 +121,9 @@ User* findUserFromID(int user_id)
 void rentBook(Book* book, User* user)
 {
     // Check if source book has available copies in stock
-    if (book->in_stock_count < 1)
+    if (book->in_stock_count < 1 || book->status != active)
     {
-        printf("Rental transaction unsuccessful. No copy available in stock for rent\n--------------\n");
+        printf("Rental transaction unsuccessful. No copy available for rent\n--------------\n");
         return;
     }
 
@@ -156,9 +156,9 @@ void returnBook(int book_uid)
 {
     // Find and update the returned book copy
     BookCopy* returned_copy = findBookCopy(book_uid);
-    if (!returned_copy)
+    if (!returned_copy || returned_copy->status != inactive)
     {
-        printf("Unable to find record of this book transaction. Please input the correct book unique ID\n");
+        printf("Unable to find record of this book rental transaction. Please input the correct book unique ID\n");
         return;
     }
     returned_copy->status = active;
@@ -179,6 +179,40 @@ void returnBook(int book_uid)
     printf("Thank you for choosing LMS!\n--------------------\n");
 }
 
+void purchaseBook(Book* book, User* user)
+{
+    // Check if source book has available copies in stock
+    if (book->in_stock_count < 1 || book->status != active)
+    {
+        printf("Purchase unsuccessful. No copy available for purchase\n--------------\n");
+        return;
+    }
+
+    // Get the first available copy
+    BookCopy* purchased_copy = getBookCopy(book);
+
+    // Create and insert purchase transaction
+    BookTransaction* purchase = createTransaction(purchased_copy->book_uid, NULL, NULL, NULL, user->user_id, purchased);
+    insertTransaction(purchase, &transaction_list);
+
+    // Print transaction status
+    if (purchase)
+    {
+        printf("Purchase successful!\n");
+        printf("Customer: %s\nBook title: %s\nBook Copy UID: %04i\n", user->full_name, book->title, purchased_copy->book_uid);
+        printf("---------------------------\n");
+    }
+    else printf("Purchase unsuccessful. Please try again\n");
+
+    // Update source book counts and status if needed
+    book->total_count -=1;
+    book->in_stock_count -= 1;
+    if (book->in_stock_count < 1)    book->status = inactive;
+
+    // Update purchased book copy status as deleted from inventory
+    purchased_copy->status = deleted;
+}
+
 BookTransaction* searchTransaction(char* keyword, BookTransaction* transaction_head, User* user_head)
 {
     BookTransaction* search_result = NULL;
@@ -192,9 +226,8 @@ BookTransaction* searchTransaction(char* keyword, BookTransaction* transaction_h
     while (current)
     {
         User* user = findUserFromID(current->user_id);
-
-        if (isContain(toString(current->book_uid), keyword) || isContain(user->full_name, keyword) || \
-        isContain(formatTransactionStatus(current->status), keyword))
+        if (isContain(toString(current->book_uid), keyword) || isContain(user->full_name, keyword) ||
+        isContain(formatTransactionStatus(current->status), keyword) || isContain(toString(current->user_id), keyword))
         {
             copyTransactionToResult(current, &search_result);
         }
