@@ -35,6 +35,7 @@ void insertBook(Book* book, Book** head);
 void printBooks(Book* head);
 Book* searchBooks(char* keyword, Book* head);
 Book* filterByISBN(char* input_ISBN, Book* head);
+Book* filterByBookStatus(int input_book_status, Book* head);
 Book* filterBooks(Book* parameters, Book* head);
 int countBooks(Book* head);
 int deleteBook(char* input_ISBN);

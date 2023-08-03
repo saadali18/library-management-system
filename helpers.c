@@ -31,7 +31,7 @@ char* formatUserStatus(int status)
 
 char* formatTransactionStatus(int status)
 {
-    char* trans_s[] = {"none", "open", "close", "past due" };
+    char* trans_s[] = {"none", "open", "close", "past due", "purchased" };
     return trans_s[status];
 }
 
