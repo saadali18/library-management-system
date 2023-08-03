@@ -1,11 +1,11 @@
 ISBN,Title,AuthorID,Status,TagCount,BookTags,TotalCount,InStockCount,Likes
-9781234567890,The Adventures of Alice,1234,2,3,1-2-3,8,8,20
+9781234567890,The Adventures of Alice,1234,2,3,1-2-3,8,7,20
 9780987654321,Journey to the Unknown,5678,2,2,2-4,6,6,10
-9789876543210,The Secret Garden,4321,2,4,3-1-2-4,9,9,30
+9789876543210,The Secret Garden,4321,2,4,3-1-2-4,9,8,30
 9780123456789,A Tale of Two Cities,9876,2,3,1-3-4,7,7,40
-9785678901234,The Great Gatsby,8765,2,3,2-4-1,5,5,15
+9785678901234,The Great Gatsby,8765,2,3,2-4-1,5,4,15
 9785432109876,Pride and Prejudice,2345,2,2,3-2,10,10,5
-9786789012345,To Kill a Mockingbird,3456,2,3,2-1-4,8,8,25
-9784567890123,The Hobbit,6543,2,4,1-2-3-4,6,6,35
+9786789012345,To Kill a Mockingbird,3456,2,3,2-1-4,8,7,25
+9784567890123,The Hobbit,6543,2,4,1-2-3-4,6,5,35
 9783210987654,Harry Potter and the Sorcerer's Stone,5432,2,2,1-4,7,7,100
 9782109876543,The Catcher in the Rye,8765,2,3,3-2-1,9,9,8
