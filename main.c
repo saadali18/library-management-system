@@ -598,8 +598,163 @@ int main()
     } // END OF CUSTOMER
 
     else if (current_user->title == author) {
+        while (!is_logged_out) {
+            int category;
+            printf("\033[1m" "***** AUTHOR PORTAL *****\n" "\033[0m"); // Bold title
+            printf("1. View my books\t2. Publish a book\t3. Edit a book\n"
+                   "4. See my book sales\t5. LOG OUT\n");
+            scanf("%i", &category);
+            switch (category) {
+                case 1: {
+                    printf("\033[1m" "%s's BOOKS\n---------------\n" "\033[0m", current_user->full_name);
+                    Book *my_books = filterByAuthorID(current_user->user_id, library);
+                    if (my_books) {
+                        printf("Total: %i book(s)\n------------\n", countBooks(my_books));
+                        printBooks(my_books);
+                    } else printf("You don't have any books currently\n");
+                    freeBookList(my_books);
+                    break;
+                }
+                case 2:
+                    printf("Enter 1 to create a book. Any key to go back\n");
+                    int choice;
+                    scanf("%i", &choice);
+                    if (choice == 1) {
+                        char* ISBN = generateISBN();
+                        char* title = malloc(100);
+                        enum book_status status = active;
+                        int author_id = current_user->user_id;
+                        enum book_tag* tags = NULL;
+                        int tag_count = 0, total_count = 0, in_stock_count = 0, likes = 0;
+                        printf("Enter book's title: ");
+                        scanf(" %[^\n]", title);
+                        printf("How many book tags? ");
+                        scanf("%i", &tag_count);
+                        if (tag_count > 0) {
+                            tags = malloc(tag_count * sizeof(enum book_tag));
+                            for (int i = 0; i < tag_count; i++) {
+                                printf("1. biography\t2. fantasy\t3. fiction\t4. mystery\n"
+                                       "5. romance\t6. scifi\t7. thriller\t8. young_adult\n");
+                                printf("Tag #%i: ", i + 1);
+                                scanf("%i", &tags[i]);
+                            }
+                        }
+                        printf("How many book copies: ");
+                        scanf("%i", &total_count);
+                        in_stock_count = total_count;
+                        Book* new_book = createBook(ISBN, title, author_id, status, tags, tag_count, total_count, in_stock_count, likes);
+                        printf("You've entered:\n");
+                        printBooks(new_book);
+                        printf("Does everything look good?\n1. Accept\t0. Go back\n");
+                        int accept;
+                        scanf("%i", &accept);
+                        if (accept == 1) {
+                            insertBook(new_book, &library);
+                        } else {
+                            freeBookList(new_book);
+                        }
+                    }
+                    break; // END OF PUBLISH
+                case 3:
+                    printf("Enter book's ISBN: ");
+                    char* edit_ISBN = malloc(14);
+                    scanf(" %[^\n]", edit_ISBN);
+                    Book* edit_book = findSourceBook(edit_ISBN);
+                    printf("1. Edit book title\t2. Inactivate book\t3. Edit book tags\n");
+                    int edit_choice;
+                    scanf("%i", &edit_choice);
+                    switch (edit_choice) {
+                        case 1: {
+                            printf("The current book title: %s\n", edit_book->title);
+                            printf("Enter new title: ");
+                            scanf(" %[^\n]", edit_book->title);
+                            break;
+                        }
+                        case 2: {
+                            printf("The current book status: %s\n", formatBookStatus(edit_book->status));
+                            printf("Enter 1 to inactivate book. Any key to go back\n");
+                            int inactivate;
+                            scanf("%i", &inactivate);
+                            if (inactivate == 1) {
+                                edit_book->status = inactive;
+                            }
+                            break;
+                        }
+                        case 3: {
+                            edit_book->tag_count = 0;
+                            free(edit_book->tags);
+                            printf("How many tags: ");
+                            scanf("%i", &edit_book->tag_count);
+                            if (edit_book->tag_count > 0) {
+                                edit_book->tags = malloc(edit_book->tag_count * sizeof(enum book_tag));
+                                for (int i = 0; i < edit_book->tag_count; i++) {
+                                    printf("1. biography\t2. fantasy\t3. fiction\t4. mystery\n"
+                                           "5. romance\t6. scifi\t7. thriller\t8. young_adult\n");
+                                    printf("Tag #%i: ", i + 1);
+                                    scanf("%i", &edit_book->tags[i]);
+                                }
+                            }
+                            break;
+                        }
+                        default:
+                            printf("Invalid input!\n");
+                            break;
+                    }
+                    printf("------------------\nUpdated book info\n------------------\n");
+                    Book *updated_book = filterByISBN(edit_ISBN, library);
+                    printBooks(updated_book);
+                    freeBookList(updated_book);
+                    free(edit_ISBN);
+                    break; // END OF EDIT
+                case 4:
+                    printf("1. Individual book sales\t2. My total book sales\n");
+                    int sales_choice;
+                    scanf("%i", &sales_choice);
+                    switch (sales_choice) {
+                        case 1:
+                            printf("Enter book ISBN: ");
+                            char* sold_ISBN = malloc(14);
+                            scanf(" %[^\n]", sold_ISBN);
+                            BookCopy* sold_copies = filterSoldCopyByISBN(sold_ISBN, inventory);
+                            printf("Book title: %s\nISBN: %s\n", findSourceBook(sold_ISBN)->title, sold_ISBN);
+                            printf("%i copies sold\n-----------------\n", countBookCopies(sold_copies));
+                            free(sold_ISBN);
+                            freeBookCopyList(sold_copies);
+                            break;
+                        case 2: {
+                            Book* my_books = filterByAuthorID(current_user->user_id, library);
+                            if (!my_books) {
+                                printf("You don't have any book in library right now\n");
+                                break;
+                            }
+                            Book* current = my_books;
+                            while (current) {
+                                BookCopy* copies = filterSoldCopyByISBN(current->ISBN, inventory);
+                                printf("Book title: %s\nISBN: %s\n", current->title, current->ISBN);
+                                printf("%i copies sold\n-----------------\n", countBookCopies(copies));
+                                freeBookCopyList(copies);
+                                current = current->next;
+                            }
+                            freeBookList(my_books);
+                            break;
+                        }
+                        default:
+                            printf("Invalid input!\n");
+                            break;
+                    }
+                    break; // END OF SALES
+                case 5:
+                    is_logged_out = true;
+                    logout();
+                    break;
+                default:
+                    printf("Invalid input!\n");
+                    break;
+            } // END OF CATEGORY
+        }
+    } // END OF AUTHOR
 
-    }
+
     // SAVE TO FILE BEFORE EXIT
     /*saveBooks(book_file, library);
     saveBookCopies(book_copy_file, inventory);

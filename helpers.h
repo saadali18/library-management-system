@@ -28,4 +28,6 @@ Date* getTodaysDate();
 int isPastDue(Date* today, Date* due_date);
 char* strsep(char** stringp, const char* delim);
 
+char* generateISBN();
+
 #endif
