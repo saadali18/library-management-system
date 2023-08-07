@@ -204,13 +204,9 @@ int isUniqueISBN(char* random_ISBN, Book* head)
     return is_unique;
 }
 
-int prefix = 987; // Prefix for any ISBN
-// Make sure the body has 10 digit after prefix to make up 13 digit ISBN
-long long MIN = 1000000000;
-long long MAX = 9999999999;
-
 long long generateRandomNum(long long lower, long long upper)
 {
+
     srand(time(NULL));
     long long num = (rand() % (upper - lower)) + lower;
     return num;
@@ -218,6 +214,10 @@ long long generateRandomNum(long long lower, long long upper)
 
 char* generateISBN()
 {
+    int prefix = 987; // Prefix for any ISBN
+// Make sure the body has 10 digit after prefix to make up 13 digit ISBN
+    long long MIN = 1000000000;
+    long long MAX = 9999999999;
     char* ISBN = malloc(14);
     do {
         srand(time(NULL));
