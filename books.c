@@ -321,6 +321,12 @@ void insertBookCopy(BookCopy* book_copy, BookCopy** head)
     current->next = book_copy;
 }
 
+void copyBookCopyToResult(BookCopy* book_copy, BookCopy** result_list)
+{
+    BookCopy* result = createBookCopy(book_copy->book_uid, book_copy->ISBN, book_copy->status);
+    insertBookCopy(result, result_list);
+}
+
 void printBookCopies(BookCopy* head)
 {
     BookCopy* copy = head;
@@ -344,6 +350,19 @@ BookCopy* getBookCopy(Book* book)
         current = current->next;
     }
     return current;
+}
+
+BookCopy* filterSoldCopyByISBN(char* input_ISBN, BookCopy* head)
+{
+    BookCopy* filtered_result = NULL;
+    BookCopy* current = head;
+    while (current)
+    {
+        if (isMatch(current->ISBN, input_ISBN) && current->status == sold)
+            copyBookCopyToResult(current, &filtered_result);
+        current = current->next;
+    }
+    return filtered_result;
 }
 
 int countBookCopies(BookCopy* head)
@@ -375,6 +394,16 @@ int deleteBookCopies(char* input_ISBN)
         current = current->next;
     }
     return deleted_booK_copy_count;
+}
+
+void freeBookCopyList(BookCopy* head)
+{
+    while (head)
+    {
+        BookCopy* temp = head;
+        head = head->next;
+        free(temp);
+    }
 }
 
 

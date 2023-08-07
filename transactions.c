@@ -209,8 +209,8 @@ void purchaseBook(Book* book, User* user)
     book->in_stock_count -= 1;
     if (book->in_stock_count < 1)    book->status = inactive;
 
-    // Update purchased book copy status as deleted from inventory
-    purchased_copy->status = deleted;
+    // Update purchased book copy status as sold from inventory
+    purchased_copy->status = sold;
 }
 
 BookTransaction* searchTransaction(char* keyword, BookTransaction* transaction_head, User* user_head)

@@ -4,10 +4,11 @@
 #include <ctype.h>
 #include <time.h>
 #include "helpers.h"
+#include "books.h"
 
 char* formatBookStatus(int status)
 {
-    char* book_s[] = { "none", "inactive", "active", "deleted" };
+    char* book_s[] = { "none", "inactive", "active", "deleted", "sold" };
     return book_s[status];
 }
 
@@ -107,7 +108,7 @@ int countDigits(long num)
 
 char* toString(int num)
 {
-    char* num_string = malloc(countDigits(num + 1) * sizeof(char));
+    char* num_string = malloc((countDigits(num) + 1) * sizeof(char));
     sprintf(num_string, "%i", num);
     return num_string;
 }
@@ -185,6 +186,45 @@ char* strsep(char** stringp, const char* delim)
             *stringp = 0;
     }
     return rv;
+}
+
+int isUniqueISBN(char* random_ISBN, Book* head)
+{
+    int is_unique = 1;
+    Book* current = head;
+    if (!current)   return is_unique; // If no book yet in library, new ISBN is unique
+
+    while (current) {
+        if (isMatch(current->ISBN, random_ISBN)) {
+            is_unique = 0;
+            break;
+        }
+        current = current->next;
+    }
+    return is_unique;
+}
+
+int prefix = 987; // Prefix for any ISBN
+// Make sure the body has 10 digit after prefix to make up 13 digit ISBN
+long long MIN = 1000000000;
+long long MAX = 9999999999;
+
+long long generateRandomNum(long long lower, long long upper)
+{
+    srand(time(NULL));
+    long long num = (rand() % (upper - lower)) + lower;
+    return num;
+}
+
+char* generateISBN()
+{
+    char* ISBN = malloc(14);
+    do {
+        srand(time(NULL));
+        long long num = generateRandomNum(MIN, MAX);
+        sprintf(ISBN, "%i%lld", prefix, num);
+    } while (!isUniqueISBN(ISBN, library));
+    return ISBN;
 }
 
 
